@@ -16,6 +16,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.madproject.R;
+import com.example.madproject.database.MoodOperations;
 import com.example.madproject.models.SongsList;
 import com.example.madproject.utils.TimeFormatter;
 
@@ -23,13 +24,14 @@ import java.util.ArrayList;
 
 /**
  * RecyclerView Adapter for displaying songs in a list.
- * Supports search filtering by title and artist.
+ * Supports search filtering by title, artist, album and mood.
  */
 public class SongAdapter extends RecyclerView.Adapter<SongAdapter.SongViewHolder> implements Filterable {
 
     private final Context context;
     private ArrayList<SongsList> songsList;
-    private ArrayList<SongsList> songsListFull; // Full list for filtering
+    private ArrayList<SongsList> songsListFull; // Complete list for filtering
+    private MoodOperations moodOperations;
     private final OnSongClickListener listener;
 
     /**
@@ -44,6 +46,7 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.SongViewHolder
         this.songsList = songsList;
         this.songsListFull = new ArrayList<>(songsList);
         this.listener = listener;
+        this.moodOperations = new MoodOperations(context);
     }
 
     @NonNull
@@ -119,9 +122,21 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.SongViewHolder
             } else {
                 String filterPattern = constraint.toString().toLowerCase().trim();
                 for (SongsList song : songsListFull) {
-                    // Filter by title or artist
-                    if (song.getTitle().toLowerCase().contains(filterPattern)
-                            || song.getArtist().toLowerCase().contains(filterPattern)) {
+                    // Filter by title, artist, album, or mood
+                    boolean matchesTitle = song.getTitle().toLowerCase().contains(filterPattern);
+                    boolean matchesArtist = song.getArtist().toLowerCase().contains(filterPattern);
+                    boolean matchesAlbum = song.getAlbum() != null && 
+                                         song.getAlbum().toLowerCase().contains(filterPattern);
+                    
+                    // Check mood filter
+                    String songMood = null;
+                    if (moodOperations != null) {
+                        songMood = moodOperations.getMoodTag(song.getPath());
+                    }
+                    boolean matchesMood = songMood != null && 
+                                         songMood.toLowerCase().contains(filterPattern);
+                    
+                    if (matchesTitle || matchesArtist || matchesAlbum || matchesMood) {
                         filteredList.add(song);
                     }
                 }

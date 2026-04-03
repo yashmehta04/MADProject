@@ -42,6 +42,7 @@ import com.example.madproject.interfaces.PlaylistActionListener;
 import com.example.madproject.interfaces.SongSelectionListener;
 import com.example.madproject.models.Playlist;
 import com.example.madproject.models.SongsList;
+import com.example.madproject.services.NewSongDetectionService;
 import com.example.madproject.utils.ExoPlayerManager;
 import com.example.madproject.utils.MoodAlgorithm;
 import com.example.madproject.utils.UsageTracker;
@@ -104,6 +105,9 @@ public class MainActivity extends AppCompatActivity
 
     // Background thread management
     private ExecutorService backgroundExecutor;
+    
+    // New songs detection
+    private BroadcastReceiver newSongsReceiver;
 
     // Data
     private ArrayList<SongsList> allSongs;
@@ -171,8 +175,41 @@ public class MainActivity extends AppCompatActivity
         // Register Audio Noisy Receiver
         registerReceiver(audioNoisyReceiver, new IntentFilter(AudioManager.ACTION_AUDIO_BECOMING_NOISY));
         receiverRegistered = true;
+        
+        // Setup new songs detection receiver
+        setupNewSongsReceiver();
+        
+        // Start new song detection service
+        startService(new Intent(this, NewSongDetectionService.class));
     }
-
+    
+    /**
+     * Setup broadcast receiver for new songs detection
+     */
+    private void setupNewSongsReceiver() {
+        newSongsReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                if ("com.example.madproject.NEW_SONGS_DETECTED".equals(intent.getAction())) {
+                    int newSongsCount = intent.getIntExtra("new_songs_count", 0);
+                    if (newSongsCount > 0) {
+                        // Refresh the library to show new songs
+                        runOnUiThread(() -> {
+                            Toast.makeText(MainActivity.this, 
+                                "Found " + newSongsCount + " new songs! Refreshing library...", 
+                                Toast.LENGTH_LONG).show();
+                            refreshSongLibrary();
+                        });
+                    }
+                }
+            }
+        };
+        
+        IntentFilter filter = new IntentFilter();
+        filter.addAction("com.example.madproject.NEW_SONGS_DETECTED");
+        registerReceiver(newSongsReceiver, filter);
+    }
+    
     /**
      * Initialize all views.
      */
@@ -377,6 +414,17 @@ public class MainActivity extends AppCompatActivity
                     Toast.makeText(MainActivity.this, "Library refreshed! Found " + allSongs.size() + " songs.",
                             Toast.LENGTH_SHORT).show();
                 }
+                
+                // Trigger background mood tagging for new/updated songs
+                MoodAlgorithm.tagSongsInBackground(MainActivity.this, allSongs, () -> {
+                    runOnUiThread(() -> {
+                        android.util.Log.d("MainActivity", "Mood tagging complete for refreshed library");
+                        // Refresh fragments that might depend on mood data
+                        if (homeFragment != null) {
+                            homeFragment.updateDashboards(allSongs);
+                        }
+                    });
+                });
             });
         });
     }
@@ -869,28 +917,24 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        miniPlayerHandler.removeCallbacks(miniPlayerUpdater);
-        playerManager.releasePlayer();
-
-        // Save usage time
-        UsageTracker.endSession(this);
-
-        if (receiverRegistered) {
+        
+        // Unregister receivers
+        if (receiverRegistered && audioNoisyReceiver != null) {
             unregisterReceiver(audioNoisyReceiver);
             receiverRegistered = false;
         }
         
-        // Clean up background executor
+        if (newSongsReceiver != null) {
+            unregisterReceiver(newSongsReceiver);
+            newSongsReceiver = null;
+        }
+        
+        // Cleanup background executor
         if (backgroundExecutor != null && !backgroundExecutor.isShutdown()) {
             backgroundExecutor.shutdown();
-            try {
-                if (!backgroundExecutor.awaitTermination(5, java.util.concurrent.TimeUnit.SECONDS)) {
-                    backgroundExecutor.shutdownNow();
-                }
-            } catch (InterruptedException e) {
-                backgroundExecutor.shutdownNow();
-                Thread.currentThread().interrupt();
-            }
         }
+        
+        // Stop usage tracking
+        UsageTracker.endSession(this);
     }
 }

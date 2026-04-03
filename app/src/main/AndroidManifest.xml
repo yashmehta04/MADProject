@@ -60,6 +60,12 @@
             </intent-filter>
         </service>
 
+        <!-- New Song Detection Service -->
+        <service
+            android:name=".services.NewSongDetectionService"
+            android:exported="false"
+            android:enabled="true" />
+
         <!-- Queue Manager Activity -->
         <activity
             android:name=".activities.QueueActivity"
