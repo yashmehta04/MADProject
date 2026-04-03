@@ -140,17 +140,6 @@
                 android:background="@drawable/bg_glass_radio_button"
                 android:layout_marginBottom="8dp" />
 
-            <RadioButton
-                android:id="@+id/radio_party"
-                android:layout_width="match_parent"
-                android:layout_height="48dp"
-                android:text="🎉 Party"
-                android:textSize="16sp"
-                android:textColor="@color/glass_text_primary"
-                android:fontFamily="sans-serif-medium"
-                android:buttonTint="@color/glass_accent"
-                android:background="@drawable/bg_glass_radio_button" />
-
         </RadioGroup>
 
         <!-- Buttons -->

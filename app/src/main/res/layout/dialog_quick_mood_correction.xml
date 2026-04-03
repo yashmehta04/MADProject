@@ -115,15 +115,6 @@
             android:layout_marginBottom="8dp"
             android:padding="8dp" />
 
-        <RadioButton
-            android:id="@+id/radio_party"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="🎉 Party"
-            android:textSize="14sp"
-            android:textColor="@color/text_primary"
-            android:padding="8dp" />
-
     </RadioGroup>
 
     <!-- Confirm Button -->
