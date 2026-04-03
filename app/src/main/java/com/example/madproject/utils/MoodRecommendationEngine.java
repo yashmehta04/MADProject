@@ -44,9 +44,9 @@ public class MoodRecommendationEngine {
                 ),
                 new Question(
                     "What kind of activity are you doing?",
-                    new String[]{"Party/Dancing", "Working Out", "Relaxing", "Studying", "Sleeping"},
-                    new double[]{0.9, 0.8, 0.2, 0.1, 0.0}, // PARTY weight
-                    new double[]{0.0, 0.1, 0.6, 0.4, 0.8}  // CALM weight
+                    new String[]{"Working Out", "Relaxing", "Studying", "Sleeping"},
+                    new double[]{0.8, 0.2, 0.1, 0.0}, // ENERGETIC weight
+                    new double[]{0.1, 0.6, 0.4, 0.8}  // CALM weight
                 ),
                 new Question(
                     "What's the weather like today?",
@@ -83,26 +83,24 @@ public class MoodRecommendationEngine {
         public final double sadScore;
         public final double calmScore;
         public final double energeticScore;
-        public final double partyScore;
         public final String primaryMood;
         public final String secondaryMood;
         public final double confidence;
         
         public UserMoodProfile(double happyScore, double sadScore, double calmScore, 
-                             double energeticScore, double partyScore) {
+                             double energeticScore) {
             this.happyScore = happyScore;
             this.sadScore = sadScore;
             this.calmScore = calmScore;
             this.energeticScore = energeticScore;
-            this.partyScore = partyScore;
             
             // Determine primary and secondary moods
             String[] moods = {MoodAlgorithm.MOOD_HAPPY, MoodAlgorithm.MOOD_SAD, 
-                            MoodAlgorithm.MOOD_CALM, MoodAlgorithm.MOOD_ENERGETIC, MoodAlgorithm.MOOD_PARTY};
-            double[] scores = {happyScore, sadScore, calmScore, energeticScore, partyScore};
+                            MoodAlgorithm.MOOD_CALM, MoodAlgorithm.MOOD_ENERGETIC};
+            double[] scores = {happyScore, sadScore, calmScore, energeticScore};
             
             // Sort by score
-            Integer[] indices = {0, 1, 2, 3, 4};
+            Integer[] indices = {0, 1, 2, 3};
             java.util.Arrays.sort(indices, (i, j) -> Double.compare(scores[j], scores[i]));
             
             this.primaryMood = moods[indices[0]];
@@ -182,7 +180,6 @@ public class MoodRecommendationEngine {
         double sadScore = 0.5;
         double calmScore = 0.5;
         double energeticScore = 0.5;
-        double partyScore = 0.5;
         
         // Process each question response
         for (int i = 0; i < questionnaire.questions.length && i < responses.length; i++) {
@@ -202,10 +199,10 @@ public class MoodRecommendationEngine {
                         calmScore += (question.calmWeights[responseIndex] - 0.5) * 0.4;
                         break;
                         
-                    case 2: // Activity question - affects PARTY/CALM
-                        partyScore += (question.energeticWeights[responseIndex] - 0.5) * 0.4;
+                    case 2: // Activity question - affects ENERGETIC/CALM
+                        energeticScore += (question.energeticWeights[responseIndex] - 0.5) * 0.4;
                         calmScore += (question.calmWeights[responseIndex] - 0.5) * 0.3;
-                        if (responseIndex == 0) { // Party/Dancing
+                        if (responseIndex == 0) { // Working Out
                             energeticScore += 0.3;
                         }
                         break;
@@ -219,7 +216,7 @@ public class MoodRecommendationEngine {
                         energeticScore += (question.energeticWeights[responseIndex] - 0.5) * 0.3;
                         calmScore += (question.calmWeights[responseIndex] - 0.5) * 0.3;
                         if (responseIndex == 4) { // Late night
-                            partyScore += 0.2;
+                            calmScore += 0.2;
                         }
                         break;
                 }
@@ -231,9 +228,8 @@ public class MoodRecommendationEngine {
         sadScore = Math.max(0, Math.min(1, sadScore));
         calmScore = Math.max(0, Math.min(1, calmScore));
         energeticScore = Math.max(0, Math.min(1, energeticScore));
-        partyScore = Math.max(0, Math.min(1, partyScore));
         
-        return new UserMoodProfile(happyScore, sadScore, calmScore, energeticScore, partyScore);
+        return new UserMoodProfile(happyScore, sadScore, calmScore, energeticScore);
     }
     
     /**
@@ -248,7 +244,6 @@ public class MoodRecommendationEngine {
         moodWeights.put(MoodAlgorithm.MOOD_SAD, moodProfile.sadScore);
         moodWeights.put(MoodAlgorithm.MOOD_CALM, moodProfile.calmScore);
         moodWeights.put(MoodAlgorithm.MOOD_ENERGETIC, moodProfile.energeticScore);
-        moodWeights.put(MoodAlgorithm.MOOD_PARTY, moodProfile.partyScore);
         
         // Collect songs with mood matching scores
         for (SongsList song : allSongs) {
@@ -359,9 +354,6 @@ public class MoodRecommendationEngine {
             case MoodAlgorithm.MOOD_ENERGETIC:
                 reasoning.append(" These high-energy tracks will keep you motivated!");
                 break;
-            case MoodAlgorithm.MOOD_PARTY:
-                reasoning.append(" These party starters will get you moving!");
-                break;
         }
         
         return reasoning.toString();
@@ -405,7 +397,7 @@ public class MoodRecommendationEngine {
         
         // Get equal distribution from all moods
         String[] moods = {MoodAlgorithm.MOOD_HAPPY, MoodAlgorithm.MOOD_SAD, 
-                         MoodAlgorithm.MOOD_CALM, MoodAlgorithm.MOOD_ENERGETIC, MoodAlgorithm.MOOD_PARTY};
+                         MoodAlgorithm.MOOD_CALM, MoodAlgorithm.MOOD_ENERGETIC};
         int perMood = Math.max(1, limit / moods.length);
         
         for (String mood : moods) {

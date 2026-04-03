@@ -271,8 +271,7 @@ public class MoodOperations {
         return MoodAlgorithm.MOOD_HAPPY.equals(moodTag) ||
                MoodAlgorithm.MOOD_SAD.equals(moodTag) ||
                MoodAlgorithm.MOOD_CALM.equals(moodTag) ||
-               MoodAlgorithm.MOOD_ENERGETIC.equals(moodTag) ||
-               MoodAlgorithm.MOOD_PARTY.equals(moodTag);
+               MoodAlgorithm.MOOD_ENERGETIC.equals(moodTag);
     }
 
     /**

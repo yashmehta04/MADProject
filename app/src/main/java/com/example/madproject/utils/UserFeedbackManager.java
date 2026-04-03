@@ -248,12 +248,8 @@ public class UserFeedbackManager {
             return MoodAlgorithm.MOOD_HAPPY;
         }
         
-        if (title.contains("party") || title.contains("dance") || title.contains("club")) {
-            return MoodAlgorithm.MOOD_PARTY;
-        }
-        
         if (artist.contains("dj") || artist.contains("remix")) {
-            return MoodAlgorithm.MOOD_PARTY;
+            return MoodAlgorithm.MOOD_ENERGETIC;
         }
         
         // Default fallback
@@ -266,8 +262,6 @@ public class UserFeedbackManager {
                 return MoodAlgorithm.MOOD_HAPPY;
             case MoodAlgorithm.MOOD_CALM:
                 return MoodAlgorithm.MOOD_HAPPY;
-            case MoodAlgorithm.MOOD_PARTY:
-                return MoodAlgorithm.MOOD_ENERGETIC;
             default:
                 return MoodAlgorithm.MOOD_CALM;
         }
@@ -280,8 +274,7 @@ public class UserFeedbackManager {
         return mood.equals(MoodAlgorithm.MOOD_HAPPY) ||
                mood.equals(MoodAlgorithm.MOOD_SAD) ||
                mood.equals(MoodAlgorithm.MOOD_CALM) ||
-               mood.equals(MoodAlgorithm.MOOD_ENERGETIC) ||
-               mood.equals(MoodAlgorithm.MOOD_PARTY);
+               mood.equals(MoodAlgorithm.MOOD_ENERGETIC);
     }
     
     /**
@@ -311,7 +304,7 @@ public class UserFeedbackManager {
         Map<String, Integer> totalCorrections = new HashMap<>();
         
         String[] moods = {MoodAlgorithm.MOOD_HAPPY, MoodAlgorithm.MOOD_SAD, 
-                         MoodAlgorithm.MOOD_CALM, MoodAlgorithm.MOOD_ENERGETIC, MoodAlgorithm.MOOD_PARTY};
+                         MoodAlgorithm.MOOD_CALM, MoodAlgorithm.MOOD_ENERGETIC};
         
         for (String mood : moods) {
             totalFeedbacks.put(mood, preferences.getInt(FEEDBACK_COUNT_KEY + mood, 0));

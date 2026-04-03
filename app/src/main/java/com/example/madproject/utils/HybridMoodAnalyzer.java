@@ -260,7 +260,7 @@ public class HybridMoodAnalyzer {
             String filename = songPath.substring(songPath.lastIndexOf('/') + 1).toLowerCase();
             
             // Simple keyword-based analysis
-            if (filename.contains("happy") || filename.contains("joy") || filename.contains("party")) {
+            if (filename.contains("happy") || filename.contains("joy")) {
                 return MoodAlgorithm.MOOD_HAPPY;
             } else if (filename.contains("sad") || filename.contains("cry") || filename.contains("alone")) {
                 return MoodAlgorithm.MOOD_SAD;
@@ -458,7 +458,7 @@ public class HybridMoodAnalyzer {
         if (tempo < 100) return MoodAlgorithm.MOOD_CALM;
         if (tempo < 130) return MoodAlgorithm.MOOD_HAPPY;
         if (tempo < 160) return MoodAlgorithm.MOOD_ENERGETIC;
-        return MoodAlgorithm.MOOD_PARTY;
+        return MoodAlgorithm.MOOD_ENERGETIC;
     }
     
     /**

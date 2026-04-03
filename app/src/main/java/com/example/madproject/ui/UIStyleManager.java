@@ -48,7 +48,6 @@ public class UIStyleManager {
     public static final int COLOR_MOOD_SAD = Color.parseColor("#4169E1");
     public static final int COLOR_MOOD_CALM = Color.parseColor("#90EE90");
     public static final int COLOR_MOOD_ENERGETIC = Color.parseColor("#FF6347");
-    public static final int COLOR_MOOD_PARTY = Color.parseColor("#FF1493");
     
     /**
      * Apply consistent button styling
@@ -147,8 +146,6 @@ public class UIStyleManager {
                 return COLOR_MOOD_CALM;
             case "ENERGETIC":
                 return COLOR_MOOD_ENERGETIC;
-            case "PARTY":
-                return COLOR_MOOD_PARTY;
             default:
                 return COLOR_PRIMARY;
         }

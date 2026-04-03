@@ -438,8 +438,6 @@ public class GlassmorphismNowPlayingActivity extends AppCompatActivity {
                 return Color.parseColor("#6BCF7F");
             case MoodAlgorithm.MOOD_ENERGETIC:
                 return Color.parseColor("#FF6B6B");
-            case MoodAlgorithm.MOOD_PARTY:
-                return Color.parseColor("#FF61D8");
             default:
                 return Color.parseColor("#6C63FF");
         }

@@ -178,8 +178,6 @@ public class GlassmorphismMainActivity extends AppCompatActivity {
                 R.drawable.ic_calm, R.color.mood_calm_glass, 67));
         categories.add(new MoodCategory("🔥 Energetic", MoodAlgorithm.MOOD_ENERGETIC, 
                 R.drawable.ic_energetic, R.color.mood_energetic_glass, 89));
-        categories.add(new MoodCategory("🎉 Party", MoodAlgorithm.MOOD_PARTY, 
-                R.drawable.ic_party, R.color.mood_party_glass, 156));
         
         return categories;
     }

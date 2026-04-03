@@ -80,11 +80,11 @@ public class SophisticatedMoodClassifier {
             0.8 // High danceability
         ),
         new MoodProfile(
-            MoodAlgorithm.MOOD_PARTY,
+            MoodAlgorithm.MOOD_ENERGETIC,
             new double[]{0.18, 0.16, 0.04, 0.12, 0.12, 0.06, 0.04, 0.06, 0.10, 0.06, 0.02, 0.04},
-            new double[]{120, 160}, // Fast tempo (party range)
-            new double[]{0.8, 1.0}, // Very high energy
-            new double[]{0.6, 0.9}, // Very positive valence
+            new double[]{120, 140}, // Fast tempo (energetic range)
+            new double[]{0.7, 0.9}, // High energy
+            new double[]{0.5, 0.8}, // Positive valence
             new double[]{0.8, 1.0}, // Very high arousal
             false, // Strongly prefers major key
             0.9 // Very high danceability
@@ -256,14 +256,14 @@ public class SophisticatedMoodClassifier {
         // Bollywood "sad" songs are often more energetic
         if (analysis.tempo > 100 && analysis.energy > 0.6) {
             moodScores[getMoodIndex(MoodAlgorithm.MOOD_HAPPY)] *= 1.3;
-            moodScores[getMoodIndex(MoodAlgorithm.MOOD_PARTY)] *= 1.2;
+            moodScores[getMoodIndex(MoodAlgorithm.MOOD_ENERGETIC)] *= 1.2;
             moodScores[getMoodIndex(MoodAlgorithm.MOOD_SAD)] *= 0.7;
         }
         
         // Bollywood dance songs are very common
         if (analysis.danceability > 0.7 && analysis.tempo > 110) {
             moodScores[getMoodIndex(MoodAlgorithm.MOOD_HAPPY)] *= 1.2;
-            moodScores[getMoodIndex(MoodAlgorithm.MOOD_PARTY)] *= 1.4;
+            moodScores[getMoodIndex(MoodAlgorithm.MOOD_ENERGETIC)] *= 1.4;
             moodScores[getMoodIndex(MoodAlgorithm.MOOD_ENERGETIC)] *= 1.1;
         }
         
@@ -295,7 +295,7 @@ public class SophisticatedMoodClassifier {
         // Rock/pop energetic songs
         if (analysis.energy > 0.8 && analysis.tempo > 120 && analysis.spectralCentroid > 2000) {
             moodScores[getMoodIndex(MoodAlgorithm.MOOD_ENERGETIC)] *= 1.3;
-            moodScores[getMoodIndex(MoodAlgorithm.MOOD_PARTY)] *= 1.2;
+            moodScores[getMoodIndex(MoodAlgorithm.MOOD_ENERGETIC)] *= 1.2;
         }
         
         // Classical/calm pieces
@@ -308,9 +308,9 @@ public class SophisticatedMoodClassifier {
             moodScores[getMoodIndex(MoodAlgorithm.MOOD_SAD)] *= 1.3;
         }
         
-        // Party/dance music
+        // Dance music
         if (analysis.danceability > 0.8 && analysis.valence > 0.5 && analysis.tempo > 120) {
-            moodScores[getMoodIndex(MoodAlgorithm.MOOD_PARTY)] *= 1.4;
+            moodScores[getMoodIndex(MoodAlgorithm.MOOD_ENERGETIC)] *= 1.4;
             moodScores[getMoodIndex(MoodAlgorithm.MOOD_HAPPY)] *= 1.1;
         }
     }
@@ -372,11 +372,6 @@ public class SophisticatedMoodClassifier {
             case MoodAlgorithm.MOOD_ENERGETIC:
                 if (analysis.energy > 0.7 && analysis.tempo > 120) {
                     reasoning.append(" (High Energy + Fast)");
-                }
-                break;
-            case MoodAlgorithm.MOOD_PARTY:
-                if (analysis.danceability > 0.8 && analysis.valence > 0.6) {
-                    reasoning.append(" (Very Danceable + Positive)");
                 }
                 break;
         }

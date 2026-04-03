@@ -21,7 +21,7 @@ import java.util.concurrent.TimeUnit;
  * 2. Title keyword analysis (fallback signal, +2 weight) 
  * 3. Duration analysis (support signal, +1 weight)
  *
- * Mood categories: HAPPY, SAD, CALM, ENERGETIC, PARTY
+ * Mood categories: HAPPY, SAD, CALM, ENERGETIC
  * 
  * <p>This class provides thread-safe mood classification for audio files
  * using a combination of metadata analysis and heuristic rules. It operates
@@ -52,7 +52,6 @@ public final class MoodAlgorithm {
     public static final String MOOD_SAD = "SAD";
     public static final String MOOD_CALM = "CALM";
     public static final String MOOD_ENERGETIC = "ENERGETIC";
-    public static final String MOOD_PARTY = "PARTY";
 
     private MoodAlgorithm() {
         // Private constructor — utility class
@@ -215,7 +214,7 @@ public final class MoodAlgorithm {
 
             // HAPPY keywords
             if (t.contains("happy") || t.contains("joy") || t.contains("love")
-                    || t.contains("party") || t.contains("dance") || t.contains("fun")
+                    || t.contains("dance") || t.contains("fun")
                     || t.contains("celebrate") || t.contains("sunshine") || t.contains("smile")
                     || t.contains("beautiful") || t.contains("good") || t.contains("wonderful")
                     || t.contains("alive") || t.contains("summer")) {
@@ -292,7 +291,6 @@ public final class MoodAlgorithm {
             case MOOD_SAD:
             case MOOD_CALM:
             case MOOD_ENERGETIC:
-            case MOOD_PARTY:
                 return true;
             default:
                 return false;
@@ -319,8 +317,6 @@ public final class MoodAlgorithm {
                 return "😌 Calm";
             case MOOD_ENERGETIC:
                 return "🔥 Energetic";
-            case MOOD_PARTY:
-                return "🎉 Party";
             default:
                 return "🎵 Mixed";
         }
@@ -339,10 +335,8 @@ public final class MoodAlgorithm {
                 return 0xFF7CFC00; // Lawn Green
             case MOOD_ENERGETIC:
                 return 0xFFFF4500; // Orange Red
-            case MOOD_PARTY:
-                return 0xFFFF1493; // Deep Pink
             default:
-                return 0xFF808080; // Gray
+                return 0xFF2196F3; // BlueGray
         }
     }
 }

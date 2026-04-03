@@ -94,8 +94,6 @@ public class QuickMoodCorrectionDialog extends DialogFragment {
             radioGroup.check(R.id.radio_calm);
         } else if (currentMood.equals(MoodAlgorithm.MOOD_ENERGETIC)) {
             radioGroup.check(R.id.radio_energetic);
-        } else if (currentMood.equals(MoodAlgorithm.MOOD_PARTY)) {
-            radioGroup.check(R.id.radio_party);
         }
         
         // Confirm button
@@ -115,8 +113,6 @@ public class QuickMoodCorrectionDialog extends DialogFragment {
             correctedMood = MoodAlgorithm.MOOD_CALM;
         } else if (selectedId == R.id.radio_energetic) {
             correctedMood = MoodAlgorithm.MOOD_ENERGETIC;
-        } else if (selectedId == R.id.radio_party) {
-            correctedMood = MoodAlgorithm.MOOD_PARTY;
         }
         
         if (correctedMood == null) {

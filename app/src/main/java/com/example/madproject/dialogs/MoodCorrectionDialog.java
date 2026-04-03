@@ -109,8 +109,7 @@ public class MoodCorrectionDialog extends DialogFragment {
             MoodAlgorithm.MOOD_HAPPY,
             MoodAlgorithm.MOOD_SAD,
             MoodAlgorithm.MOOD_CALM,
-            MoodAlgorithm.MOOD_ENERGETIC,
-            MoodAlgorithm.MOOD_PARTY
+            MoodAlgorithm.MOOD_ENERGETIC
         };
         
         String[] moodDisplayNames = new String[moods.length];
@@ -176,8 +175,7 @@ public class MoodCorrectionDialog extends DialogFragment {
             MoodAlgorithm.MOOD_HAPPY,
             MoodAlgorithm.MOOD_SAD,
             MoodAlgorithm.MOOD_CALM,
-            MoodAlgorithm.MOOD_ENERGETIC,
-            MoodAlgorithm.MOOD_PARTY
+            MoodAlgorithm.MOOD_ENERGETIC
         };
         
         if (position >= 0 && position < moods.length) {

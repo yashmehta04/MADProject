@@ -272,8 +272,6 @@ public class ThemeManager {
                 return Color.parseColor("#90EE90");
             case "ENERGETIC":
                 return Color.parseColor("#FF6347");
-            case "PARTY":
-                return Color.parseColor("#FF1493");
             default:
                 return getAccentColor();
         }

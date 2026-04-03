@@ -139,8 +139,7 @@ public class MoodSongsActivity extends AppCompatActivity {
         return MoodAlgorithm.MOOD_HAPPY.equals(mood) ||
                MoodAlgorithm.MOOD_SAD.equals(mood) ||
                MoodAlgorithm.MOOD_CALM.equals(mood) ||
-               MoodAlgorithm.MOOD_ENERGETIC.equals(mood) ||
-               MoodAlgorithm.MOOD_PARTY.equals(mood);
+               MoodAlgorithm.MOOD_ENERGETIC.equals(mood);
     }
 
     /**
@@ -194,8 +193,6 @@ public class MoodSongsActivity extends AppCompatActivity {
                 return R.drawable.ic_calm;
             case MoodAlgorithm.MOOD_ENERGETIC:
                 return R.drawable.ic_energetic;
-            case MoodAlgorithm.MOOD_PARTY:
-                return R.drawable.ic_party;
             default:
                 return R.drawable.ic_happy;
         }
