@@ -46,7 +46,8 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.SongViewHolder
         this.songsList = songsList;
         this.songsListFull = new ArrayList<>(songsList);
         this.listener = listener;
-        this.moodOperations = new MoodOperations(context);
+        // Initialize MoodOperations lazily to prevent startup crashes
+        this.moodOperations = null;
     }
 
     @NonNull
@@ -130,6 +131,14 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.SongViewHolder
                     
                     // Check mood filter
                     String songMood = null;
+                    if (moodOperations == null) {
+                        try {
+                            moodOperations = new MoodOperations(context);
+                        } catch (Exception e) {
+                            // If MoodOperations fails, skip mood filtering
+                            songMood = null;
+                        }
+                    }
                     if (moodOperations != null) {
                         songMood = moodOperations.getMoodTag(song.getPath());
                     }

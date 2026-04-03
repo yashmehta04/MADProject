@@ -176,11 +176,11 @@ public class MainActivity extends AppCompatActivity
         registerReceiver(audioNoisyReceiver, new IntentFilter(AudioManager.ACTION_AUDIO_BECOMING_NOISY));
         receiverRegistered = true;
         
-        // Setup new songs detection receiver
-        setupNewSongsReceiver();
+        // Temporarily disable new songs detection receiver to fix crash
+        // setupNewSongsReceiver();
         
-        // Start new song detection service
-        startService(new Intent(this, NewSongDetectionService.class));
+        // Temporarily disable new song detection service to fix crash
+        // startService(new Intent(this, NewSongDetectionService.class));
     }
     
     /**
@@ -924,10 +924,11 @@ public class MainActivity extends AppCompatActivity
             receiverRegistered = false;
         }
         
-        if (newSongsReceiver != null) {
-            unregisterReceiver(newSongsReceiver);
-            newSongsReceiver = null;
-        }
+        // Temporarily disable newSongsReceiver cleanup
+        // if (newSongsReceiver != null) {
+        //     unregisterReceiver(newSongsReceiver);
+        //     newSongsReceiver = null;
+        // }
         
         // Cleanup background executor
         if (backgroundExecutor != null && !backgroundExecutor.isShutdown()) {
