@@ -18,10 +18,30 @@ import java.util.concurrent.TimeUnit;
  * Offline mood classification algorithm for local songs.
  * Uses a multi-factor heuristic scoring system combining:
  * 1. Genre metadata (primary signal, +3 weight)
- * 2. Title keyword analysis (fallback signal, +2 weight)
+ * 2. Title keyword analysis (fallback signal, +2 weight) 
  * 3. Duration analysis (support signal, +1 weight)
  *
- * Mood categories: HAPPY, SAD, CALM, ENERGETIC
+ * Mood categories: HAPPY, SAD, CALM, ENERGETIC, PARTY
+ * 
+ * <p>This class provides thread-safe mood classification for audio files
+ * using a combination of metadata analysis and heuristic rules. It operates
+ * entirely offline without requiring network connectivity.</p>
+ * 
+ * <p><b>Usage Example:</b></p>
+ * <pre>{@code
+ * // Classify a single song
+ * String mood = MoodAlgorithm.classifySong("rock", "Happy Song", 180000);
+ * 
+ * // Tag multiple songs in background
+ * ArrayList<SongsList> songs = getSongsList();
+ * MoodAlgorithm.tagSongsInBackground(context, songs, () -> {
+ *     Log.d("MainActivity", "Mood tagging complete");
+ * });
+ * }</pre>
+ * 
+ * @since 1.0
+ * @author SonicWave Team
+ * @version 2.1.0
  */
 public final class MoodAlgorithm {
 
