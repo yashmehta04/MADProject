@@ -34,6 +34,7 @@ public class NewSongDetectionService extends Service {
     private Handler mainHandler;
     private BroadcastReceiver mediaScanReceiver;
     private boolean isReceiverRegistered = false;
+    private java.util.concurrent.atomic.AtomicBoolean isScanning = new java.util.concurrent.atomic.AtomicBoolean(false);
     
     @Override
     public void onCreate() {
@@ -72,7 +73,9 @@ public class NewSongDetectionService extends Service {
             );
             channel.setDescription("Detects and processes new songs");
             android.app.NotificationManager notificationManager = getSystemService(android.app.NotificationManager.class);
-            notificationManager.createNotificationChannel(channel);
+            if (notificationManager != null) {
+                notificationManager.createNotificationChannel(channel);
+            }
         }
     }
     
@@ -128,6 +131,12 @@ public class NewSongDetectionService extends Service {
      * Scans for new songs and automatically tags them with moods
      */
     private void scanAndTagNewSongs() {
+        // Check if scan is already in progress
+        if (!isScanning.compareAndSet(false, true)) {
+            Log.d(TAG, "Scan already in progress, skipping");
+            return;
+        }
+        
         new Thread(() -> {
             try {
                 Log.d(TAG, "Scanning for new songs...");
@@ -173,6 +182,9 @@ public class NewSongDetectionService extends Service {
                 mainHandler.post(() -> {
                     Toast.makeText(this, "Error scanning for new songs", Toast.LENGTH_SHORT).show();
                 });
+            } finally {
+                // Reset scanning flag
+                isScanning.set(false);
             }
         }).start();
     }

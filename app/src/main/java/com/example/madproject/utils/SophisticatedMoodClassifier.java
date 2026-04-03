@@ -264,7 +264,6 @@ public class SophisticatedMoodClassifier {
         if (analysis.danceability > 0.7 && analysis.tempo > 110) {
             moodScores[getMoodIndex(MoodAlgorithm.MOOD_HAPPY)] *= 1.2;
             moodScores[getMoodIndex(MoodAlgorithm.MOOD_ENERGETIC)] *= 1.4;
-            moodScores[getMoodIndex(MoodAlgorithm.MOOD_ENERGETIC)] *= 1.1;
         }
         
         // Bollywood romantic songs
@@ -295,7 +294,6 @@ public class SophisticatedMoodClassifier {
         // Rock/pop energetic songs
         if (analysis.energy > 0.8 && analysis.tempo > 120 && analysis.spectralCentroid > 2000) {
             moodScores[getMoodIndex(MoodAlgorithm.MOOD_ENERGETIC)] *= 1.3;
-            moodScores[getMoodIndex(MoodAlgorithm.MOOD_ENERGETIC)] *= 1.2;
         }
         
         // Classical/calm pieces

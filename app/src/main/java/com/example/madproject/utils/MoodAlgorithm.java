@@ -336,7 +336,7 @@ public final class MoodAlgorithm {
             case MOOD_ENERGETIC:
                 return 0xFFFF4500; // Orange Red
             default:
-                return 0xFF2196F3; // BlueGray
+                return 0xFF2196F3; // Blue
         }
     }
 }

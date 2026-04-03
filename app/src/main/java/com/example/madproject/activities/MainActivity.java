@@ -205,7 +205,13 @@ public class MainActivity extends AppCompatActivity
         
         IntentFilter filter = new IntentFilter();
         filter.addAction("com.example.madproject.NEW_SONGS_DETECTED");
-        registerReceiver(newSongsReceiver, filter, Context.RECEIVER_NOT_EXPORTED);
+        
+        // Use appropriate receiver registration based on API level
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            registerReceiver(newSongsReceiver, filter, Context.RECEIVER_NOT_EXPORTED);
+        } else {
+            registerReceiver(newSongsReceiver, filter);
+        }
     }
     
     /**
@@ -926,8 +932,8 @@ public class MainActivity extends AppCompatActivity
             sleepTimerHandler.removeCallbacksAndMessages(null);
         }
         
-        // Release player resources
-        if (playerManager != null) {
+        // Release player resources only if activity is actually finishing
+        if (playerManager != null && isFinishing()) {
             playerManager.releasePlayer();
         }
         

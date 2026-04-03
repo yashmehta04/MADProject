@@ -32,7 +32,8 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.SongViewHolder
     private ArrayList<SongsList> songsList;
     private ArrayList<SongsList> songsListFull; // Complete list for filtering
     private MoodOperations moodOperations;
-    private java.util.Map<String, String> moodCache; // Cache mood tags for performance
+    private java.util.concurrent.ConcurrentHashMap<String, String> moodCache; // Thread-safe mood cache
+    private java.util.concurrent.ExecutorService moodLoaderExecutor; // Sequential mood loading
     private final OnSongClickListener listener;
 
     /**
@@ -49,8 +50,10 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.SongViewHolder
         this.listener = listener;
         // Initialize MoodOperations lazily to prevent startup crashes
         this.moodOperations = null;
-        // Initialize mood cache for performance
-        this.moodCache = new java.util.HashMap<>();
+        // Initialize thread-safe mood cache for performance
+        this.moodCache = new java.util.concurrent.ConcurrentHashMap<>();
+        // Initialize sequential executor for mood loading
+        this.moodLoaderExecutor = java.util.concurrent.Executors.newSingleThreadExecutor();
         // Preload mood tags
         preloadMoodTags();
     }
@@ -117,30 +120,48 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.SongViewHolder
      * Preloads mood tags for all songs to improve filtering performance
      */
     private void preloadMoodTags() {
+        if (moodLoaderExecutor == null) return;
+        
+        // Clear cache on main thread
         moodCache.clear();
-        if (moodOperations == null) {
-            try {
-                moodOperations = new MoodOperations(context);
-            } catch (Exception e) {
-                return; // Skip mood caching if MoodOperations fails
+        
+        // Copy fields to locals for thread safety
+        final MoodOperations localMoodOps;
+        final java.util.concurrent.ConcurrentHashMap<String, String> localMoodCache;
+        final java.util.List<SongsList> localSongs;
+        
+        synchronized (this) {
+            if (moodOperations == null) {
+                try {
+                    moodOperations = new MoodOperations(context);
+                } catch (Exception e) {
+                    return; // Skip mood caching if MoodOperations fails
+                }
             }
+            localMoodOps = moodOperations;
+            localMoodCache = moodCache;
+            localSongs = new ArrayList<>(songsListFull);
         }
         
-        // Load mood tags in background thread
-        new Thread(() -> {
+        // Load mood tags using sequential executor
+        moodLoaderExecutor.submit(() -> {
             try {
-                for (SongsList song : songsListFull) {
+                if (localMoodOps == null || localMoodCache == null || localSongs == null) {
+                    return;
+                }
+                
+                for (SongsList song : localSongs) {
                     if (song != null && song.getPath() != null) {
-                        String mood = moodOperations.getMoodTag(song.getPath());
+                        String mood = localMoodOps.getMoodTag(song.getPath());
                         if (mood != null) {
-                            moodCache.put(song.getPath(), mood);
+                            localMoodCache.put(song.getPath(), mood);
                         }
                     }
                 }
             } catch (Exception e) {
                 // Ignore errors in mood loading
             }
-        }).start();
+        });
     }
 
     // ======================== Search Filter ========================
@@ -169,9 +190,9 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.SongViewHolder
                     boolean matchesArtist = artist.toLowerCase().contains(filterPattern);
                     boolean matchesAlbum = album.toLowerCase().contains(filterPattern);
                     
-                    // Get mood from cache instead of database query
+                    // Get mood from cache instead of database query with null safety
                     String songMood = null;
-                    if (song.getPath() != null && moodCache.containsKey(song.getPath())) {
+                    if (song.getPath() != null && moodCache != null && moodCache.containsKey(song.getPath())) {
                         songMood = moodCache.get(song.getPath());
                     }
                     boolean matchesMood = songMood != null && 
@@ -207,6 +228,11 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.SongViewHolder
         if (moodCache != null) {
             moodCache.clear();
             moodCache = null;
+        }
+        // Shutdown mood loading executor
+        if (moodLoaderExecutor != null) {
+            moodLoaderExecutor.shutdownNow();
+            moodLoaderExecutor = null;
         }
     }
 
