@@ -12,7 +12,9 @@ import android.util.Log;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
 
+import com.example.madproject.R;
 import com.example.madproject.database.MoodOperations;
 import com.example.madproject.models.SongsList;
 import com.example.madproject.utils.MoodAlgorithm;
@@ -43,13 +45,54 @@ public class NewSongDetectionService extends Service {
     
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+        // Create notification channel for Android O+
+        createNotificationChannel();
+        
+        // Start foreground service
+        startForeground(1, createNotification());
+        
         // Check if service was started with a specific action
         if (intent != null && "SCAN_NEW_SONGS".equals(intent.getAction())) {
             Log.d(TAG, "Manual scan triggered");
             scanAndTagNewSongs();
         }
         
-        return START_STICKY; // Keep service running
+        return START_NOT_STICKY; // Don't restart automatically
+    }
+    
+    /**
+     * Create notification channel for Android O+
+     */
+    private void createNotificationChannel() {
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+            android.app.NotificationChannel channel = new android.app.NotificationChannel(
+                "new_song_detection",
+                "New Song Detection",
+                android.app.NotificationManager.IMPORTANCE_LOW
+            );
+            channel.setDescription("Detects and processes new songs");
+            android.app.NotificationManager notificationManager = getSystemService(android.app.NotificationManager.class);
+            notificationManager.createNotificationChannel(channel);
+        }
+    }
+    
+    /**
+     * Create foreground service notification
+     */
+    private android.app.Notification createNotification() {
+        android.app.Notification.Builder builder;
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+            builder = new android.app.Notification.Builder(this, "new_song_detection");
+        } else {
+            builder = new android.app.Notification.Builder(this);
+        }
+        
+        builder.setContentTitle("SonicWave")
+               .setContentText("Monitoring for new songs...")
+               .setSmallIcon(R.drawable.ic_music_note)
+               .setPriority(android.app.Notification.PRIORITY_LOW);
+        
+        return builder.build();
     }
     
     /**
@@ -73,8 +116,9 @@ public class NewSongDetectionService extends Service {
         IntentFilter filter = new IntentFilter();
         filter.addAction(Intent.ACTION_MEDIA_SCANNER_FINISHED);
         filter.addAction(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
+        filter.addDataScheme("file");
         
-        registerReceiver(mediaScanReceiver, filter);
+        registerReceiver(mediaScanReceiver, filter, Context.RECEIVER_NOT_EXPORTED);
         isReceiverRegistered = true;
         
         Log.d(TAG, "Media scan receiver registered");
@@ -112,13 +156,13 @@ public class NewSongDetectionService extends Service {
                             String message = "Processed " + newSongs.size() + " new songs with mood tags";
                             Toast.makeText(this, message, Toast.LENGTH_LONG).show();
                             Log.i(TAG, message);
+                            
+                            // Notify MainActivity about new songs AFTER tagging completes
+                            Intent updateIntent = new Intent("com.example.madproject.NEW_SONGS_DETECTED");
+                            updateIntent.putExtra("new_songs_count", newSongs.size());
+                            sendBroadcast(updateIntent);
                         });
                     });
-                    
-                    // Notify MainActivity about new songs
-                    Intent updateIntent = new Intent("com.example.madproject.NEW_SONGS_DETECTED");
-                    updateIntent.putExtra("new_songs_count", newSongs.size());
-                    sendBroadcast(updateIntent);
                     
                 } else {
                     Log.d(TAG, "No new songs found");
@@ -143,6 +187,11 @@ public class NewSongDetectionService extends Service {
     public void onDestroy() {
         super.onDestroy();
         
+        // Clear pending handler callbacks
+        if (mainHandler != null) {
+            mainHandler.removeCallbacksAndMessages(null);
+        }
+        
         // Unregister receiver
         if (isReceiverRegistered && mediaScanReceiver != null) {
             unregisterReceiver(mediaScanReceiver);
@@ -158,6 +207,6 @@ public class NewSongDetectionService extends Service {
     public static void triggerManualScan(Context context) {
         Intent intent = new Intent(context, NewSongDetectionService.class);
         intent.setAction("SCAN_NEW_SONGS");
-        context.startService(intent);
+        ContextCompat.startForegroundService(context, intent);
     }
 }

@@ -32,6 +32,7 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.SongViewHolder
     private ArrayList<SongsList> songsList;
     private ArrayList<SongsList> songsListFull; // Complete list for filtering
     private MoodOperations moodOperations;
+    private java.util.Map<String, String> moodCache; // Cache mood tags for performance
     private final OnSongClickListener listener;
 
     /**
@@ -48,6 +49,10 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.SongViewHolder
         this.listener = listener;
         // Initialize MoodOperations lazily to prevent startup crashes
         this.moodOperations = null;
+        // Initialize mood cache for performance
+        this.moodCache = new java.util.HashMap<>();
+        // Preload mood tags
+        preloadMoodTags();
     }
 
     @NonNull
@@ -103,7 +108,39 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.SongViewHolder
     public void updateData(ArrayList<SongsList> newSongs) {
         this.songsList = newSongs;
         this.songsListFull = new ArrayList<>(newSongs);
+        // Refresh mood cache when data updates
+        preloadMoodTags();
         notifyDataSetChanged();
+    }
+    
+    /**
+     * Preloads mood tags for all songs to improve filtering performance
+     */
+    private void preloadMoodTags() {
+        moodCache.clear();
+        if (moodOperations == null) {
+            try {
+                moodOperations = new MoodOperations(context);
+            } catch (Exception e) {
+                return; // Skip mood caching if MoodOperations fails
+            }
+        }
+        
+        // Load mood tags in background thread
+        new Thread(() -> {
+            try {
+                for (SongsList song : songsListFull) {
+                    if (song != null && song.getPath() != null) {
+                        String mood = moodOperations.getMoodTag(song.getPath());
+                        if (mood != null) {
+                            moodCache.put(song.getPath(), mood);
+                        }
+                    }
+                }
+            } catch (Exception e) {
+                // Ignore errors in mood loading
+            }
+        }).start();
     }
 
     // ======================== Search Filter ========================
@@ -123,24 +160,19 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.SongViewHolder
             } else {
                 String filterPattern = constraint.toString().toLowerCase().trim();
                 for (SongsList song : songsListFull) {
-                    // Filter by title, artist, album, or mood
-                    boolean matchesTitle = song.getTitle().toLowerCase().contains(filterPattern);
-                    boolean matchesArtist = song.getArtist().toLowerCase().contains(filterPattern);
-                    boolean matchesAlbum = song.getAlbum() != null && 
-                                         song.getAlbum().toLowerCase().contains(filterPattern);
+                    // Filter by title, artist, album, or mood with null-safe checks
+                    String title = java.util.Objects.toString(song.getTitle(), "");
+                    String artist = java.util.Objects.toString(song.getArtist(), "");
+                    String album = java.util.Objects.toString(song.getAlbum(), "");
                     
-                    // Check mood filter
+                    boolean matchesTitle = title.toLowerCase().contains(filterPattern);
+                    boolean matchesArtist = artist.toLowerCase().contains(filterPattern);
+                    boolean matchesAlbum = album.toLowerCase().contains(filterPattern);
+                    
+                    // Get mood from cache instead of database query
                     String songMood = null;
-                    if (moodOperations == null) {
-                        try {
-                            moodOperations = new MoodOperations(context);
-                        } catch (Exception e) {
-                            // If MoodOperations fails, skip mood filtering
-                            songMood = null;
-                        }
-                    }
-                    if (moodOperations != null) {
-                        songMood = moodOperations.getMoodTag(song.getPath());
+                    if (song.getPath() != null && moodCache.containsKey(song.getPath())) {
+                        songMood = moodCache.get(song.getPath());
                     }
                     boolean matchesMood = songMood != null && 
                                          songMood.toLowerCase().contains(filterPattern);
@@ -163,6 +195,20 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.SongViewHolder
             notifyDataSetChanged();
         }
     };
+    
+    @Override
+    public void onDetachedFromRecyclerView(@NonNull RecyclerView recyclerView) {
+        super.onDetachedFromRecyclerView(recyclerView);
+        // Cleanup MoodOperations and cache
+        if (moodOperations != null) {
+            // MoodOperations doesn't have close() method, but we can clear references
+            moodOperations = null;
+        }
+        if (moodCache != null) {
+            moodCache.clear();
+            moodCache = null;
+        }
+    }
 
     // ======================== ViewHolder ========================
 

@@ -176,11 +176,11 @@ public class MainActivity extends AppCompatActivity
         registerReceiver(audioNoisyReceiver, new IntentFilter(AudioManager.ACTION_AUDIO_BECOMING_NOISY));
         receiverRegistered = true;
         
-        // Temporarily disable new songs detection receiver to fix crash
-        // setupNewSongsReceiver();
+        // Setup new songs detection receiver
+        setupNewSongsReceiver();
         
-        // Temporarily disable new song detection service to fix crash
-        // startService(new Intent(this, NewSongDetectionService.class));
+        // Start new song detection service
+        startService(new Intent(this, NewSongDetectionService.class));
     }
     
     /**
@@ -207,7 +207,7 @@ public class MainActivity extends AppCompatActivity
         
         IntentFilter filter = new IntentFilter();
         filter.addAction("com.example.madproject.NEW_SONGS_DETECTED");
-        registerReceiver(newSongsReceiver, filter);
+        registerReceiver(newSongsReceiver, filter, Context.RECEIVER_NOT_EXPORTED);
     }
     
     /**
@@ -918,17 +918,34 @@ public class MainActivity extends AppCompatActivity
     protected void onDestroy() {
         super.onDestroy();
         
+        // Remove pending handler callbacks
+        if (miniPlayerHandler != null) {
+            miniPlayerHandler.removeCallbacks(miniPlayerUpdater);
+        }
+        
+        // Clear sleep timer
+        if (sleepTimerHandler != null) {
+            sleepTimerHandler.removeCallbacksAndMessages(null);
+        }
+        
+        // Release player resources
+        if (playerManager != null) {
+            playerManager.releasePlayer();
+        }
+        
+        // Stop NewSongDetectionService
+        stopService(new Intent(this, NewSongDetectionService.class));
+        
         // Unregister receivers
         if (receiverRegistered && audioNoisyReceiver != null) {
             unregisterReceiver(audioNoisyReceiver);
             receiverRegistered = false;
         }
         
-        // Temporarily disable newSongsReceiver cleanup
-        // if (newSongsReceiver != null) {
-        //     unregisterReceiver(newSongsReceiver);
-        //     newSongsReceiver = null;
-        // }
+        if (newSongsReceiver != null) {
+            unregisterReceiver(newSongsReceiver);
+            newSongsReceiver = null;
+        }
         
         // Cleanup background executor
         if (backgroundExecutor != null && !backgroundExecutor.isShutdown()) {
