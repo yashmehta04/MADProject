@@ -36,7 +36,7 @@ public class GlassmorphismMainActivitySimple extends AppCompatActivity {
                 btnAbout.setOnClickListener(v -> showAboutDialog());
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            Log.e(TAG, "Error", e);
         }
     }
 
@@ -55,7 +55,7 @@ public class GlassmorphismMainActivitySimple extends AppCompatActivity {
                     .setIcon(R.drawable.ic_music_note)
                     .show();
         } catch (Exception e) {
-            e.printStackTrace();
+            Log.e(TAG, "Error", e);
         }
     }
 }

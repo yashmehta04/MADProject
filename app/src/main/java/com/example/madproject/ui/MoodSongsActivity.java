@@ -203,8 +203,14 @@ public class MoodSongsActivity extends AppCompatActivity {
         List<SongsList> songs = new ArrayList<>();
         
         try {
-            if (selectedMood == null) {
+            if (selectedMood == null || selectedMood.trim().isEmpty()) {
                 Log.w("MoodSongsActivity", "Cannot load songs - no mood selected");
+                return songs;
+            }
+            
+            // Validate mood again for safety
+            if (!isValidMood(selectedMood)) {
+                Log.w("MoodSongsActivity", "Invalid mood for loading: " + selectedMood);
                 return songs;
             }
             
@@ -223,20 +229,19 @@ public class MoodSongsActivity extends AppCompatActivity {
                     songs.add(song);
                 }
             } else {
-                // Convert song paths to SongsList objects
-                for (String path : songPaths) {
-                    SongsList song = new SongsList();
-                    song.setPath(path);
-                    // Extract title and artist from path or metadata
-                    String fileName = getFileName(path);
-                    song.setTitle(fileName.replace(".mp3", "").replace(".flac", ""));
-                    song.setArtist("Unknown Artist");
-                    songs.add(song);
+                // Load actual songs from the main song list
+                if (allSongs != null) {
+                    for (SongsList song : allSongs) {
+                        if (song != null && song.getPath() != null && songPaths.contains(song.getPath())) {
+                            songs.add(song);
+                        }
+                    }
                 }
             }
             
         } catch (Exception e) {
             Log.e("MoodSongsActivity", "Error loading mood songs", e);
+            // Return empty list on error
             // Fallback to placeholder data
             for (int i = 0; i < 5; i++) {
                 SongsList song = new SongsList();

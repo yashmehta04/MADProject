@@ -13,12 +13,14 @@ import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.util.Log;
 import com.example.madproject.R;
 import com.google.android.material.switchmaterial.SwitchMaterial;
 
 import java.util.ArrayList;
 
 public class EqualizerActivity extends AppCompatActivity {
+    private static final String TAG = "EqualizerActivity";
 
     private Equalizer equalizer;
     private BassBoost bassBoost;
@@ -50,7 +52,7 @@ public class EqualizerActivity extends AppCompatActivity {
             virtualizer = new Virtualizer(0, audioSessionId);
             loudnessEnhancer = new LoudnessEnhancer(audioSessionId);
         } catch (Exception e) {
-            e.printStackTrace();
+            Log.e(TAG, "Error initializing audio effects", e);
             return;
         }
 

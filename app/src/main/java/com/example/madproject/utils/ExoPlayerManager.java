@@ -12,9 +12,11 @@ import com.example.madproject.services.PlaybackService;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.MoreExecutors;
 
+import android.util.Log;
 import java.util.concurrent.ExecutionException;
 
 public class ExoPlayerManager {
+    private static final String TAG = "ExoPlayerManager";
     private static volatile ExoPlayerManager instance;
     private MediaController mediaController;
     private boolean isPrepared = false;
@@ -55,7 +57,7 @@ public class ExoPlayerManager {
                     onConnected.run();
                 }
             } catch (ExecutionException | InterruptedException e) {
-                e.printStackTrace();
+                Log.e(TAG, "Error connecting to media session", e);
             }
         }, MoreExecutors.directExecutor());
     }

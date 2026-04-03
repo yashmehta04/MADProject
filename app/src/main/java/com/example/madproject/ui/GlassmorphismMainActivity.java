@@ -84,7 +84,7 @@ public class GlassmorphismMainActivity extends AppCompatActivity {
             startAnimations();
             setupListeners();
         } catch (Exception e) {
-            e.printStackTrace();
+            Log.e(TAG, "Error initializing glassmorphic UI", e);
             // Fallback to basic initialization
         }
     }
@@ -105,7 +105,7 @@ public class GlassmorphismMainActivity extends AppCompatActivity {
                 return insets;
             });
         } catch (Exception e) {
-            e.printStackTrace();
+            Log.e(TAG, "Error setting up edge-to-edge display", e);
             // Continue without edge-to-edge if it fails
         }
     }
@@ -124,7 +124,7 @@ public class GlassmorphismMainActivity extends AppCompatActivity {
             cardHero = findViewById(R.id.card_hero);
             btnAbout = findViewById(R.id.btn_about);
         } catch (Exception e) {
-            e.printStackTrace();
+            Log.e(TAG, "Error", e);
         }
     }
 
@@ -439,7 +439,7 @@ public class GlassmorphismMainActivity extends AppCompatActivity {
                 btnAbout.setOnClickListener(v -> showAboutDialog());
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            Log.e(TAG, "Error", e);
         }
     }
 
@@ -474,7 +474,7 @@ public class GlassmorphismMainActivity extends AppCompatActivity {
                     .setIcon(R.drawable.ic_music_note)
                     .show();
         } catch (Exception e) {
-            e.printStackTrace();
+            Log.e(TAG, "Error", e);
         }
     }
 

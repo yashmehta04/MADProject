@@ -4,6 +4,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.util.Log;
 
 import com.example.madproject.models.Playlist;
 import com.example.madproject.models.SongsList;
@@ -15,6 +16,7 @@ import java.util.ArrayList;
  * Provides CRUD operations for playlists and playlist songs.
  */
 public class PlaylistOperations {
+    private static final String TAG = "PlaylistOperations";
 
     private final PlaylistDBHandler dbHandler;
 
@@ -173,25 +175,32 @@ public class PlaylistOperations {
      */
     private ArrayList<SongsList> getPlaylistSongs(SQLiteDatabase db, int playlistId) {
         ArrayList<SongsList> songs = new ArrayList<>();
+        Cursor cursor = null;
+        
+        try {
+            cursor = db.query(PlaylistDBHandler.TABLE_PLAYLIST_SONGS,
+                    null,
+                    PlaylistDBHandler.COLUMN_FK_PLAYLIST_ID + " = ?",
+                    new String[] { String.valueOf(playlistId) },
+                    null, null, null);
 
-        Cursor cursor = db.query(PlaylistDBHandler.TABLE_PLAYLIST_SONGS,
-                null,
-                PlaylistDBHandler.COLUMN_FK_PLAYLIST_ID + " = ?",
-                new String[] { String.valueOf(playlistId) },
-                null, null, null);
+            if (cursor != null && cursor.moveToFirst()) {
+                int titleIndex = cursor.getColumnIndexOrThrow(PlaylistDBHandler.COLUMN_SONG_TITLE);
+                int pathIndex = cursor.getColumnIndexOrThrow(PlaylistDBHandler.COLUMN_SONG_PATH);
 
-        if (cursor != null && cursor.moveToFirst()) {
-            int titleIndex = cursor.getColumnIndexOrThrow(PlaylistDBHandler.COLUMN_SONG_TITLE);
-            int pathIndex = cursor.getColumnIndexOrThrow(PlaylistDBHandler.COLUMN_SONG_PATH);
-
-            do {
-                SongsList song = new SongsList();
-                song.setTitle(cursor.getString(titleIndex));
-                song.setPath(cursor.getString(pathIndex));
-                songs.add(song);
-            } while (cursor.moveToNext());
-
-            cursor.close();
+                do {
+                    SongsList song = new SongsList();
+                    song.setTitle(cursor.getString(titleIndex));
+                    song.setPath(cursor.getString(pathIndex));
+                    songs.add(song);
+                } while (cursor.moveToNext());
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "Error getting playlist songs", e);
+        } finally {
+            if (cursor != null) {
+                cursor.close();
+            }
         }
 
         return songs;

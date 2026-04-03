@@ -163,14 +163,41 @@ public class SmartFileFilter {
     }
     
     /**
-     * Extract file name from path
+     * Extract file name from path with path traversal protection
      */
     private static String getFileName(String filePath) {
-        int lastSlash = filePath.lastIndexOf('/');
-        if (lastSlash >= 0 && lastSlash < filePath.length() - 1) {
-            return filePath.substring(lastSlash + 1);
+        if (filePath == null || filePath.trim().isEmpty()) {
+            return "unknown_file";
         }
-        return filePath;
+        
+        // Normalize path to prevent path traversal attacks
+        String normalizedPath = filePath.replace('\\', '/');
+        
+        // Remove any path traversal attempts
+        if (normalizedPath.contains("../") || normalizedPath.contains("..\\") ||
+            normalizedPath.startsWith("/") || normalizedPath.startsWith("\\")) {
+            Log.w(TAG, "Potential path traversal detected, using safe fallback: " + filePath);
+            return "safe_file";
+        }
+        
+        int lastSlash = normalizedPath.lastIndexOf('/');
+        if (lastSlash >= 0 && lastSlash < normalizedPath.length() - 1) {
+            String fileName = normalizedPath.substring(lastSlash + 1);
+            // Additional safety check for file name
+            if (fileName.contains("..") || fileName.length() > 255) {
+                Log.w(TAG, "Unsafe file name detected, using safe fallback: " + fileName);
+                return "safe_file";
+            }
+            return fileName;
+        }
+        
+        // If no path separators found, validate the entire string as filename
+        if (normalizedPath.contains("..") || normalizedPath.length() > 255) {
+            Log.w(TAG, "Unsafe path detected, using safe fallback: " + normalizedPath);
+            return "safe_file";
+        }
+        
+        return normalizedPath;
     }
     
     /**

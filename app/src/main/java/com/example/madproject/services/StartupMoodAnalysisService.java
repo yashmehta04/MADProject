@@ -20,6 +20,8 @@ import com.example.madproject.utils.SmartFileFilter;
 import com.example.madproject.utils.StorageScanner;
 
 import java.util.ArrayList;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  * Startup mood analysis service that runs when app is first launched.
@@ -51,8 +53,13 @@ public class StartupMoodAnalysisService {
     public void startStartupAnalysis() {
         Log.i(TAG, "Starting comprehensive mood analysis for all songs");
         
-        // Run in background thread
-        new Thread(this::performStartupAnalysis).start();
+        // Run in background thread using ExecutorService for better thread management
+        ExecutorService executor = Executors.newSingleThreadExecutor();
+        try {
+            executor.submit(this::performStartupAnalysis);
+        } finally {
+            executor.shutdown();
+        }
     }
     
     /**

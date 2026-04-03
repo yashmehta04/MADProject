@@ -7,6 +7,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 
 import com.example.madproject.models.SongsList;
+import com.example.madproject.utils.MoodAlgorithm;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -188,28 +189,65 @@ public class MoodOperations {
      * @return ArrayList of matching SongsList objects
      */
     public ArrayList<SongsList> getSongsByMood(ArrayList<SongsList> allSongs, String moodTag, int limit) {
+        // Input validation
+        if (allSongs == null || allSongs.isEmpty()) {
+            Log.w(TAG, "Empty song list provided");
+            return new ArrayList<>();
+        }
+        
+        if (moodTag == null || moodTag.trim().isEmpty()) {
+            Log.w(TAG, "Invalid mood tag provided");
+            return new ArrayList<>();
+        }
+        
+        // Validate mood tag against allowed values to prevent SQL injection
+        String normalizedMoodTag = moodTag.trim().toUpperCase();
+        if (!isValidMoodTag(normalizedMoodTag)) {
+            Log.w(TAG, "Invalid mood tag: " + moodTag + ", using default HAPPY");
+            normalizedMoodTag = "HAPPY";
+        }
+        
+        // Validate limit
+        int safeLimit = Math.max(0, Math.min(limit, allSongs.size()));
+        
         // First get all paths matching the mood
         Set<String> matchingPaths = new HashSet<>();
-        SQLiteDatabase db = dbHandler.getReadableDatabase();
-        Cursor cursor = db.query(MoodDBHandler.TABLE_MOOD_TAGS,
-                new String[]{MoodDBHandler.COLUMN_SONG_PATH},
-                MoodDBHandler.COLUMN_MOOD_TAG + " = ?",
-                new String[]{moodTag},
-                null, null, null);
+        SQLiteDatabase db = null;
+        Cursor cursor = null;
+        
+        try {
+            db = dbHandler.getReadableDatabase();
+            cursor = db.query(MoodDBHandler.TABLE_MOOD_TAGS,
+                    new String[]{MoodDBHandler.COLUMN_SONG_PATH},
+                    MoodDBHandler.COLUMN_MOOD_TAG + " = ?",
+                    new String[]{normalizedMoodTag},
+                    null, null, null);
 
-        if (cursor != null && cursor.moveToFirst()) {
-            int pathIndex = cursor.getColumnIndexOrThrow(MoodDBHandler.COLUMN_SONG_PATH);
-            do {
-                matchingPaths.add(cursor.getString(pathIndex));
-            } while (cursor.moveToNext());
-            cursor.close();
+            if (cursor != null && cursor.moveToFirst()) {
+                int pathIndex = cursor.getColumnIndexOrThrow(MoodDBHandler.COLUMN_SONG_PATH);
+                do {
+                    String path = cursor.getString(pathIndex);
+                    if (path != null && !path.trim().isEmpty()) {
+                        matchingPaths.add(path);
+                    }
+                } while (cursor.moveToNext());
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "Error querying mood database", e);
+            return new ArrayList<>();
+        } finally {
+            if (cursor != null) {
+                cursor.close();
+            }
+            if (db != null) {
+                db.close();
+            }
         }
-        db.close();
 
         // Match against the full library to get complete SongsList objects
         ArrayList<SongsList> result = new ArrayList<>();
         for (SongsList song : allSongs) {
-            if (matchingPaths.contains(song.getPath())) {
+            if (song != null && song.getPath() != null && matchingPaths.contains(song.getPath())) {
                 result.add(song);
             }
         }
@@ -218,10 +256,22 @@ public class MoodOperations {
         java.util.Collections.shuffle(result);
 
         // Apply limit
-        if (result.size() > limit) {
-            return new ArrayList<>(result.subList(0, limit));
+        if (result.size() > safeLimit) {
+            return new ArrayList<>(result.subList(0, safeLimit));
         }
+        
         return result;
+    }
+    
+    /**
+     * Validates mood tag against allowed values to prevent SQL injection
+     */
+    private boolean isValidMoodTag(String moodTag) {
+        return MoodAlgorithm.MOOD_HAPPY.equals(moodTag) ||
+               MoodAlgorithm.MOOD_SAD.equals(moodTag) ||
+               MoodAlgorithm.MOOD_CALM.equals(moodTag) ||
+               MoodAlgorithm.MOOD_ENERGETIC.equals(moodTag) ||
+               MoodAlgorithm.MOOD_PARTY.equals(moodTag);
     }
 
     /**
