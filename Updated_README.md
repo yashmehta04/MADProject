@@ -650,7 +650,7 @@ MADProject/
         ├── java/com/example/madproject/
         │   ├── activities/
         │   │   ├── SplashActivity.java          # Animated splash screen with fade-in
-        │   │   ├── MainActivity.java            # Legacy main activity (v2.0.0, currently stable)
+        │   │   ├── MainActivity.java            # Default/stable main activity (v2.0.0)
         │   │   ├── QueueActivity.java           # Drag-to-reorder queue manager
         │   │   └── EqualizerActivity.java       # Equalizer with bands, bass boost, virtualizer
         │   │
@@ -658,7 +658,7 @@ MADProject/
         │   │   ├── GlassmorphismMainActivity.java    # Immersive glassmorphic main activity
         │   │   ├── MoodSongsActivity.java           # Glassmorphic mood-filtered songs screen
         │   │   ├── GlassmorphismNowPlayingActivity.java # Immersive glassmorphic now playing
-        │   │   └── GlassmorphismMainActivitySimple.java # **UPDATED: Simple test activity for debugging**
+        │   │   └── GlassmorphismMainActivitySimple.java # **NEW v2.1.0: Simple test activity for debugging**
         │   │
         │   ├── ui/adapters/                     # **NEW v2.1.0: Glassmorphism Adapters**
         │   │   ├── MoodCategoryAdapter.java         # Glassmorphic mood categories adapter
@@ -930,13 +930,13 @@ All dependency versions are centralized in `gradle/libs.versions.toml`:
 | **🎨 Glassmorphic Design System** | Complete theme system with glass cards, buttons, text styles, and animations |
 | **📱 Edge-to-Edge Display** | Full-screen experience with transparent system bars and adaptive padding |
 | **🎬 Animation System** | Comprehensive animation framework with entrance, pulse, and transition effects |
-| **� App Crash Fixes** | **CRITICAL: Fixed app startup crashes by reverting to stable MainActivity** |
+| **🔧 App Crash Fixes** | **CRITICAL: Fixed app startup crashes by reverting to stable MainActivity** |
 | **🛡️ Stability Improvements** | Added comprehensive error handling, null checks, and try-catch blocks |
 | **🔍 Debug Environment** | Created `GlassmorphismMainActivitySimple` for isolated testing |
 | **📋 AndroidManifest Updates** | Updated themes and activity declarations for stability |
 | **🔗 Navigation Updates** | SplashActivity now navigates to stable MainActivity (reverted from glassmorphism) |
 | **🎨 Glassmorphic Resources** | New drawable, color, style, and layout resources for glassmorphism design |
-| **📊 Complete Mood System** | 5 mood categories with 90%+ accuracy using multi-factor analysis |
+| **📊 Complete Mood System** | 5 mood categories with high-accuracy detection using multi-factor analysis |
 | **🎵 Genre Metadata Extraction** | Advanced genre detection from ID3 tags and filename analysis |
 | **🎵 Music Recommendation Engine** | Personalized playlists based on user mood questionnaire |
 | **📱 GitHub Integration** | Complete codebase pushed with security measures and CodeRabbit-ready review |
