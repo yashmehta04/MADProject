@@ -42,7 +42,8 @@ public final class StorageScanner {
                 MediaStore.Audio.Media.DATA,
                 MediaStore.Audio.Media.DURATION,
                 MediaStore.Audio.Media.ALBUM,
-                MediaStore.Audio.Media.ALBUM_ID
+                MediaStore.Audio.Media.ALBUM_ID,
+                MediaStore.Audio.Media.DATE_ADDED
         };
 
         // Filter: only music files with duration > 10 seconds
@@ -64,6 +65,7 @@ public final class StorageScanner {
             int durationColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DURATION);
             int albumColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ALBUM);
             int albumIdColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ALBUM_ID);
+            int dateAddedColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DATE_ADDED);
 
             do {
                 long id = cursor.getLong(idColumn);
@@ -73,6 +75,7 @@ public final class StorageScanner {
                 long duration = cursor.getLong(durationColumn);
                 String album = cursor.getString(albumColumn);
                 long albumId = cursor.getLong(albumIdColumn);
+                long dateAdded = cursor.getLong(dateAddedColumn);
 
                 // Handle unknown artist
                 if (artist == null || artist.equals("<unknown>")) {
@@ -90,6 +93,7 @@ public final class StorageScanner {
                 if (!uniqueKeys.contains(duplicateKey)) {
                     uniqueKeys.add(duplicateKey);
                     SongsList song = new SongsList(id, title, artist, path, duration, album, albumId);
+                    song.setDateAdded(dateAdded);
                     songsList.add(song);
                 }
 

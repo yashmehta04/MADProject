@@ -194,7 +194,7 @@ public class MainActivity extends AppCompatActivity
                         // Refresh the library to show new songs
                         runOnUiThread(() -> {
                             Toast.makeText(MainActivity.this, 
-                                "Found " + newSongsCount + " new songs! Refreshing library...", 
+                                "Found " + newSongsCount + " new songs downloaded/added to device! Refreshing library...", 
                                 Toast.LENGTH_LONG).show();
                             refreshSongLibrary();
                         });

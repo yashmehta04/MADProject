@@ -182,9 +182,11 @@ public class HomeFragment extends Fragment implements SongAdapter.OnSongClickLis
         this.allSongs = songs;
         if (rvRecentlyAdded == null || songs == null || songs.isEmpty()) return;
 
-        // Recently Added
+        // Recently Added - sort by dateAdded in descending order (newest first)
         ArrayList<SongsList> recentAdded = new ArrayList<>(songs);
-        Collections.reverse(recentAdded);
+        recentAdded.sort((s1, s2) -> Long.compare(s2.getDateAdded(), s1.getDateAdded()));
+        
+        // Take top 20 most recently added songs
         if (recentAdded.size() > 20) recentAdded = new ArrayList<>(recentAdded.subList(0, 20));
 
         SongAdapter adapterRecent = new SongAdapter(getContext(), recentAdded, this);
