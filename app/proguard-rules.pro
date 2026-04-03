@@ -187,10 +187,18 @@
 # Keep all callback interfaces
 -keep class * extends java.lang.reflect.InvocationHandler
 
-# Keep all methods in classes that implement interfaces
--keep class * {
-    @interface * <methods>;
-}
+# Keep TensorFlow Lite classes
+-keep class org.tensorflow.lite.** { *; }
+-keep class org.tensorflow.lite.support.** { *; }
+-keep class org.tensorflow.lite.support.audio.** { *; }
+-keep class org.tensorflow.lite.support.label.** { *; }
+-keep class org.tensorflow.lite.support.image.** { *; }
+-keep class org.tensorflow.lite.support.tensorbuffer.** { *; }
+
+# Keep AutoValue classes for TensorFlow
+-keep class com.google.auto.value.** { *; }
+-keep class * extends com.google.auto.value.AutoValue { *; }
+-keep class * implements com.google.auto.value.AutoValue$Builder { *; }
 
 # Additional security: Remove debug information in release
 -keepattributes !DebugInfo,!SourceFile,LineNumberTable

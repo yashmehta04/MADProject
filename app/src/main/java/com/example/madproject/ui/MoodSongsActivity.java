@@ -27,6 +27,7 @@ import com.example.madproject.database.MoodOperations;
 import com.example.madproject.models.SongsList;
 import com.example.madproject.ui.adapters.MoodSongsAdapter;
 import com.example.madproject.utils.MoodAlgorithm;
+import com.example.madproject.utils.StorageScanner;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -50,6 +51,7 @@ public class MoodSongsActivity extends AppCompatActivity {
     private String moodName;
     private List<SongsList> moodSongs;
     private MoodSongsAdapter moodSongsAdapter;
+    private ArrayList<SongsList> allSongs;
 
     // Animation
     private Handler animationHandler = new Handler(Looper.getMainLooper());
@@ -62,6 +64,9 @@ public class MoodSongsActivity extends AppCompatActivity {
         // Set glassmorphism theme
         setTheme(R.style.GlassmorphismTheme);
         setContentView(R.layout.activity_mood_songs_glassmorphism);
+
+        // Initialize allSongs from MainActivity
+        allSongs = StorageScanner.scanSongs(this);
 
         // Enable edge-to-edge display
         setupEdgeToEdge();
@@ -216,9 +221,9 @@ public class MoodSongsActivity extends AppCompatActivity {
             
             // Load actual songs from database filtered by mood
             MoodOperations moodOps = new MoodOperations(this);
-            List<String> songPaths = moodOps.getSongsByMood(selectedMood);
+            ArrayList<SongsList> moodSongs = moodOps.getSongsByMood(allSongs, selectedMood, 50);
             
-            if (songPaths.isEmpty()) {
+            if (moodSongs.isEmpty()) {
                 Log.d("MoodSongsActivity", "No songs found for mood: " + selectedMood);
                 // Create placeholder data for demonstration
                 for (int i = 0; i < 10; i++) {
@@ -229,14 +234,8 @@ public class MoodSongsActivity extends AppCompatActivity {
                     songs.add(song);
                 }
             } else {
-                // Load actual songs from the main song list
-                if (allSongs != null) {
-                    for (SongsList song : allSongs) {
-                        if (song != null && song.getPath() != null && songPaths.contains(song.getPath())) {
-                            songs.add(song);
-                        }
-                    }
-                }
+                // Add the mood songs directly
+                songs.addAll(moodSongs);
             }
             
         } catch (Exception e) {

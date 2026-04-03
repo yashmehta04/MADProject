@@ -78,8 +78,12 @@ public class UIStyleManager {
             case GLASS:
                 button.setBackgroundColor(COLOR_GLASS_BACKGROUND);
                 button.setTextColor(COLOR_TEXT_PRIMARY);
-                button.setStrokeWidth(2);
-                button.setStrokeColor(COLOR_GLASS_BORDER);
+                // Apply glass border using background drawable
+                android.graphics.drawable.GradientDrawable drawable = new android.graphics.drawable.GradientDrawable();
+                drawable.setShape(android.graphics.drawable.GradientDrawable.RECTANGLE);
+                drawable.setStroke(2, COLOR_GLASS_BORDER);
+                drawable.setCornerRadius(8f);
+                button.setBackground(drawable);
                 break;
         }
         

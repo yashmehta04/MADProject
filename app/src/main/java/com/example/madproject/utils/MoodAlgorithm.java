@@ -280,6 +280,31 @@ public final class MoodAlgorithm {
         if (sadScore == maxScore) return MOOD_SAD;
         return MOOD_CALM;
     }
+    
+    /**
+     * Check if mood is valid
+     */
+    public static boolean isValidMood(String mood) {
+        if (mood == null) return false;
+        
+        switch (mood) {
+            case MOOD_HAPPY:
+            case MOOD_SAD:
+            case MOOD_CALM:
+            case MOOD_ENERGETIC:
+            case MOOD_PARTY:
+                return true;
+            default:
+                return false;
+        }
+    }
+    
+    /**
+     * Classify song by genre (alias for classifySong)
+     */
+    public static String classifyGenre(String genre, String title, int duration) {
+        return classifySong(genre, title, duration);
+    }
 
     /**
      * Returns a display-friendly emoji + label for a mood.

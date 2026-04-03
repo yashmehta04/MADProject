@@ -151,6 +151,18 @@ public class SmartFileFilter {
     }
     
     /**
+     * Check if song has valid music metadata
+     */
+    private static boolean hasMusicMetadata(SongsList song) {
+        if (song == null) return false;
+        
+        // Check if song has basic music metadata
+        return song.getTitle() != null && !song.getTitle().isEmpty() &&
+               song.getArtist() != null && !song.getArtist().isEmpty() &&
+               song.getDuration() > 0;
+    }
+    
+    /**
      * Check if file has suspicious extension
      */
     private static boolean hasSuspiciousExtension(String filePath) {
@@ -295,8 +307,12 @@ public class SmartFileFilter {
             this.originalCount = originalCount;
             this.filteredCount = filteredCount;
             this.excludedCount = excludedCount;
-            this.exclusionRate = originalCount > 0 ? (double) excludedCount / originalCount : 0;
+            this.exclusionRate = originalCount > 0 ? (double) excludedCount / originalCount : 0.0;
         }
+        
+        public int getOriginalCount() { return originalCount; }
+        public int getFilteredCount() { return filteredCount; }
+        public int getExcludedCount() { return excludedCount; }
         
         public String getSummary() {
             return String.format("Filtered %d/%d files (%.1f%% excluded)", 
@@ -308,17 +324,20 @@ public class SmartFileFilter {
      * Test filtering on a single file (for debugging)
      */
     public static boolean testFile(String filePath) {
-        // Create a dummy SongsList for testing
-        SongsList testSong = new SongsList(
-            0, 
-            getFileName(filePath), 
-            "Unknown Artist", 
-            filePath, 
-            180000, // 3 minutes
-            "Unknown Album", 
-            0
-        );
+        if (filePath == null || filePath.trim().isEmpty()) {
+            return false;
+        }
         
-        return isValidMusicFile(testSong);
+        // Check for path traversal attempts
+        if (filePath.contains("../") || filePath.contains("..\\") || filePath.startsWith("/")) {
+            return false;
+        }
+        
+        // Check for very long filenames
+        if (filePath.length() > 255) {
+            return false;
+        }
+        
+        return true;
     }
 }

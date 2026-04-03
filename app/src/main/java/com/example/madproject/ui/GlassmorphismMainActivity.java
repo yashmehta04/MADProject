@@ -42,6 +42,8 @@ import java.util.Random;
  */
 public class GlassmorphismMainActivity extends AppCompatActivity {
 
+    private static final String TAG = "GlassmorphismMainActivity";
+
     // UI Components
     private RecyclerView rvMoodCategories;
     private RecyclerView rvRecentSongs;

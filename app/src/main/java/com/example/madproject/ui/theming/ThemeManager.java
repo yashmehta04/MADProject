@@ -298,16 +298,7 @@ public class ThemeManager {
      */
     private int getDefaultThemeColor(int colorResId) {
         // Fallback colors for missing resources
-        switch (colorResId) {
-            case R.color.colorPrimary:
-                return getPrimaryColor();
-            case R.color.colorPrimaryDark:
-                return getPrimaryDarkColor();
-            case R.color.colorAccent:
-                return getAccentColor();
-            default:
-                return getPrimaryColor();
-        }
+        return getPrimaryColor();
     }
     
     /**

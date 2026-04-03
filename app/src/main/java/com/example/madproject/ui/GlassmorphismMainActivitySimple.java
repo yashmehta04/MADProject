@@ -2,6 +2,7 @@ package com.example.madproject.ui;
 
 import android.app.AlertDialog;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.Button;
 import android.widget.TextView;
 
@@ -13,6 +14,8 @@ import com.example.madproject.R;
  * Simple test version of GlassmorphismMainActivity to identify crash issues
  */
 public class GlassmorphismMainActivitySimple extends AppCompatActivity {
+
+    private static final String TAG = "GlassmorphismMainActivitySimple";
 
     private TextView tvTest;
     private Button btnAbout;
