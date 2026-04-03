@@ -285,7 +285,7 @@ public class ThemeManager {
     private int adjustColorForDarkMode(int color) {
         // Increase brightness for better visibility in dark mode
         float[] hsv = new float[3];
-        Color.colorToRGB(color, hsv);
+        Color.colorToHSV(color, hsv);
         
         // Increase value (brightness) by 20%
         hsv[2] = Math.min(1.0f, hsv[2] * 1.2f);
@@ -449,7 +449,7 @@ public class ThemeManager {
                 summary.append("System (");
                 summary.append(isDarkModeActive() ? "Dark" : "Light");
                 if (isDarkModeActive() && isAmoledDarkEnabled) {
-                    summary.append " (AMOLED)";
+                    summary.append(" (AMOLED)");
                 }
                 summary.append(")");
                 break;

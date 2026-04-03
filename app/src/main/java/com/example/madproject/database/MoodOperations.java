@@ -19,6 +19,7 @@ import java.util.Set;
  */
 public class MoodOperations {
 
+    private static final String TAG = "MoodOperations";
     private final MoodDBHandler dbHandler;
 
     public MoodOperations(Context context) {
@@ -360,10 +361,10 @@ public class MoodOperations {
         
         boolean success = rowsAffected > 0;
         if (success) {
-            Log.i("MoodOperations", "Updated mood tag for: " + songPath + 
+            Log.i(TAG, "Updated mood tag for: " + songPath + 
                       " -> " + newMood + " (confidence: " + confidence + ")");
         } else {
-            Log.e("MoodOperations", "Failed to update mood tag for: " + songPath);
+            Log.e(TAG, "Failed to update mood tag for: " + songPath);
         }
         
         return success;

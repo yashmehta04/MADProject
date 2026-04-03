@@ -363,19 +363,20 @@ public class MainActivity extends AppCompatActivity
 
     // ======================== Refresh ========================
 
-/**
- * Re-scans storage and refreshes all fragments asynchronously.
- */
-private void refreshSongLibrary() {
-    Toast.makeText(this, "Refreshing library...", Toast.LENGTH_SHORT).show();
-    backgroundExecutor.execute(() -> {
-        ArrayList<SongsList> scannedSongs = StorageScanner.scanSongs(MainActivity.this);
-        runOnUiThread(() -> {
-            allSongs = scannedSongs;
-            if (homeFragment != null) {
-                homeFragment.updateDashboards(allSongs);
-                Toast.makeText(MainActivity.this, "Library refreshed! Found " + allSongs.size() + " songs.",
-                        Toast.LENGTH_SHORT).show();
+    /**
+     * Re-scans storage and refreshes all fragments asynchronously.
+     */
+    private void refreshSongLibrary() {
+        Toast.makeText(this, "Refreshing library...", Toast.LENGTH_SHORT).show();
+        backgroundExecutor.execute(() -> {
+            ArrayList<SongsList> scannedSongs = StorageScanner.scanSongs(MainActivity.this);
+            runOnUiThread(() -> {
+                allSongs = scannedSongs;
+                if (homeFragment != null) {
+                    homeFragment.updateDashboards(allSongs);
+                    Toast.makeText(MainActivity.this, "Library refreshed! Found " + allSongs.size() + " songs.",
+                            Toast.LENGTH_SHORT).show();
+                }
             });
         });
     }

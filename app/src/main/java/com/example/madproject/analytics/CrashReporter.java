@@ -357,7 +357,7 @@ public class CrashReporter {
         return state;
     }
     
-    private void writeCrashToFile(JSONObject crashReport) throws IOException {
+    private void writeCrashToFile(JSONObject crashReport) throws IOException, JSONException {
         File crashFile = new File(context.getFilesDir(), CRASH_LOG_FILE);
         try (FileWriter writer = new FileWriter(crashFile, true)) {
             writer.write("=== CRASH REPORT ===\n");

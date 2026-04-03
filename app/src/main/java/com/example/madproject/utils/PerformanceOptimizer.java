@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -222,6 +223,33 @@ public class PerformanceOptimizer {
         }
         
         return futures;
+    }
+
+    /**
+     * Analyze audio features for a batch of songs.
+     * This is used by the performance test suite.
+     */
+    public CompletableFuture<Void> analyzeAudioFeatures(String primaryPath, String[] otherPaths) {
+        return CompletableFuture.runAsync(() -> {
+            List<String> allPaths = new ArrayList<>();
+            if (primaryPath != null) allPaths.add(primaryPath);
+            if (otherPaths != null) {
+                for (String path : otherPaths) {
+                    if (!allPaths.contains(path)) {
+                        allPaths.add(path);
+                    }
+                }
+            }
+            
+            Map<String, Future<AdvancedAudioAnalyzer.AudioAnalysis>> futures = batchAnalyzeSongs(allPaths);
+            for (Future<AdvancedAudioAnalyzer.AudioAnalysis> future : futures.values()) {
+                try {
+                    future.get(); // Wait for each analysis in the batch to complete
+                } catch (Exception e) {
+                    Log.e(TAG, "Error waiting for batch analysis", e);
+                }
+            }
+        }, analysisExecutor);
     }
     
     /**
