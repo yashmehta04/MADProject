@@ -3,10 +3,12 @@ package com.example.madproject.ui;
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
 import android.animation.ValueAnimator;
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.util.Log;
 import android.view.View;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.animation.OvershootInterpolator;
@@ -21,6 +23,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.madproject.R;
+import com.example.madproject.database.MoodOperations;
 import com.example.madproject.models.SongsList;
 import com.example.madproject.ui.adapters.MoodSongsAdapter;
 import com.example.madproject.utils.MoodAlgorithm;
@@ -88,21 +91,51 @@ public class MoodSongsActivity extends AppCompatActivity {
     }
 
     /**
-     * Get mood data from intent
+     * Get mood data from intent with validation
      */
     private void getIntentData() {
         Intent intent = getIntent();
-        if (intent != null) {
-            selectedMood = intent.getStringExtra("mood");
-            moodName = intent.getStringExtra("mood_name");
+        if (intent == null) {
+            Log.w("MoodSongsActivity", "Intent is null, using default mood");
+            selectedMood = MoodAlgorithm.MOOD_HAPPY;
+            moodName = "Happy";
+            return;
         }
         
-        if (selectedMood == null) {
+        selectedMood = intent.getStringExtra("mood");
+        moodName = intent.getStringExtra("mood_name");
+        
+        // Validate mood
+        if (selectedMood == null || selectedMood.trim().isEmpty()) {
+            Log.w("MoodSongsActivity", "Invalid mood provided, using default");
             selectedMood = MoodAlgorithm.MOOD_HAPPY;
         }
-        if (moodName == null) {
+        
+        // Validate mood name
+        if (moodName == null || moodName.trim().isEmpty()) {
+            Log.w("MoodSongsActivity", "Invalid mood name provided, using default");
             moodName = "Happy";
         }
+        
+        // Additional validation - ensure mood is one of the supported moods
+        if (!isValidMood(selectedMood)) {
+            Log.w("MoodSongsActivity", "Unsupported mood: " + selectedMood + ", using default");
+            selectedMood = MoodAlgorithm.MOOD_HAPPY;
+            moodName = "Happy";
+        }
+        
+        Log.d("MoodSongsActivity", "Using mood: " + selectedMood + " (" + moodName + ")");
+    }
+    
+    /**
+     * Validate if mood is supported
+     */
+    private boolean isValidMood(String mood) {
+        return MoodAlgorithm.MOOD_HAPPY.equals(mood) ||
+               MoodAlgorithm.MOOD_SAD.equals(mood) ||
+               MoodAlgorithm.MOOD_CALM.equals(mood) ||
+               MoodAlgorithm.MOOD_ENERGETIC.equals(mood) ||
+               MoodAlgorithm.MOOD_PARTY.equals(mood);
     }
 
     /**
@@ -164,22 +197,70 @@ public class MoodSongsActivity extends AppCompatActivity {
     }
 
     /**
-     * Load mood songs (placeholder implementation)
+     * Load mood songs from database
      */
     private List<SongsList> loadMoodSongs() {
         List<SongsList> songs = new ArrayList<>();
         
-        // TODO: Load actual songs from database filtered by mood
-        // For now, create placeholder data
-        for (int i = 0; i < 20; i++) {
-            SongsList song = new SongsList();
-            song.setTitle(moodName + " Song " + (i + 1));
-            song.setArtist("Artist " + (i + 1));
-            song.setPath("/path/to/song" + i + ".mp3");
-            songs.add(song);
+        try {
+            if (selectedMood == null) {
+                Log.w("MoodSongsActivity", "Cannot load songs - no mood selected");
+                return songs;
+            }
+            
+            // Load actual songs from database filtered by mood
+            MoodOperations moodOps = new MoodOperations(this);
+            List<String> songPaths = moodOps.getSongsByMood(selectedMood);
+            
+            if (songPaths.isEmpty()) {
+                Log.d("MoodSongsActivity", "No songs found for mood: " + selectedMood);
+                // Create placeholder data for demonstration
+                for (int i = 0; i < 10; i++) {
+                    SongsList song = new SongsList();
+                    song.setTitle(moodName + " Song " + (i + 1));
+                    song.setArtist("Artist " + (i + 1));
+                    song.setPath("/path/to/song" + i + ".mp3");
+                    songs.add(song);
+                }
+            } else {
+                // Convert song paths to SongsList objects
+                for (String path : songPaths) {
+                    SongsList song = new SongsList();
+                    song.setPath(path);
+                    // Extract title and artist from path or metadata
+                    String fileName = getFileName(path);
+                    song.setTitle(fileName.replace(".mp3", "").replace(".flac", ""));
+                    song.setArtist("Unknown Artist");
+                    songs.add(song);
+                }
+            }
+            
+        } catch (Exception e) {
+            Log.e("MoodSongsActivity", "Error loading mood songs", e);
+            // Fallback to placeholder data
+            for (int i = 0; i < 5; i++) {
+                SongsList song = new SongsList();
+                song.setTitle("Fallback Song " + (i + 1));
+                song.setArtist("Fallback Artist");
+                song.setPath("/path/to/fallback/song" + i + ".mp3");
+                songs.add(song);
+            }
         }
         
         return songs;
+    }
+    
+    /**
+     * Extract file name from path
+     */
+    private String getFileName(String path) {
+        if (path == null) return "Unknown";
+        
+        int lastSlash = path.lastIndexOf('/');
+        if (lastSlash >= 0 && lastSlash < path.length() - 1) {
+            return path.substring(lastSlash + 1);
+        }
+        return path;
     }
 
     /**

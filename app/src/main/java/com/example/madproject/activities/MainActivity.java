@@ -58,6 +58,8 @@ import com.example.madproject.utils.TimeFormatter;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  * Main activity hosting fragments via ViewPager + TabLayout.
@@ -99,6 +101,9 @@ public class MainActivity extends AppCompatActivity
     // Search
     private SearchView toolbarSearchView;
     private MenuItem searchMenuItem;
+
+    // Background thread management
+    private ExecutorService backgroundExecutor;
 
     // Data
     private ArrayList<SongsList> allSongs;
@@ -151,6 +156,9 @@ public class MainActivity extends AppCompatActivity
         playerManager = ExoPlayerManager.getInstance();
         playerManager.initialize(this, null);
         allSongs = new ArrayList<>();
+        
+        // Initialize background thread pool
+        backgroundExecutor = Executors.newSingleThreadExecutor();
 
         initViews();
         setupToolbar();
@@ -334,7 +342,7 @@ public class MainActivity extends AppCompatActivity
      */
     private void loadSongsAndSetup() {
         Toast.makeText(this, "Scanning music library...", Toast.LENGTH_SHORT).show();
-        java.util.concurrent.Executors.newSingleThreadExecutor().execute(() -> {
+        backgroundExecutor.execute(() -> {
             ArrayList<SongsList> scannedSongs = StorageScanner.scanSongs(MainActivity.this);
             runOnUiThread(() -> {
                 allSongs = scannedSongs;
@@ -355,37 +363,17 @@ public class MainActivity extends AppCompatActivity
 
     // ======================== Refresh ========================
 
-    /**
-     * Re-scans storage and refreshes all fragments asynchronously.
-     */
-    private void refreshSongLibrary() {
-        Toast.makeText(this, "Refreshing library...", Toast.LENGTH_SHORT).show();
-        java.util.concurrent.Executors.newSingleThreadExecutor().execute(() -> {
-            ArrayList<SongsList> scannedSongs = StorageScanner.scanSongs(MainActivity.this);
-            runOnUiThread(() -> {
-                allSongs = scannedSongs;
-                if (homeFragment != null) {
-                    homeFragment.updateDashboards(allSongs);
-                }
-                if (allSongFragment != null) {
-                    allSongFragment.updateSongs(allSongs);
-                }
-                if (favSongFragment != null) {
-                    favSongFragment.loadFavorites();
-                }
-                if (playlistFragment != null) {
-                    playlistFragment.loadPlaylists();
-                }
-                if (moodQuestionnaireFragment != null) {
-                    moodQuestionnaireFragment.setAllSongs(allSongs);
-                }
-
-                // Re-tag new songs in background
-                MoodAlgorithm.tagSongsInBackground(MainActivity.this, allSongs, null);
-
-                // Update usage tracker
-                UsageTracker.startSession(MainActivity.this);
-
+/**
+ * Re-scans storage and refreshes all fragments asynchronously.
+ */
+private void refreshSongLibrary() {
+    Toast.makeText(this, "Refreshing library...", Toast.LENGTH_SHORT).show();
+    backgroundExecutor.execute(() -> {
+        ArrayList<SongsList> scannedSongs = StorageScanner.scanSongs(MainActivity.this);
+        runOnUiThread(() -> {
+            allSongs = scannedSongs;
+            if (homeFragment != null) {
+                homeFragment.updateDashboards(allSongs);
                 Toast.makeText(MainActivity.this, "Library refreshed! Found " + allSongs.size() + " songs.",
                         Toast.LENGTH_SHORT).show();
             });
@@ -889,6 +877,19 @@ public class MainActivity extends AppCompatActivity
         if (receiverRegistered) {
             unregisterReceiver(audioNoisyReceiver);
             receiverRegistered = false;
+        }
+        
+        // Clean up background executor
+        if (backgroundExecutor != null && !backgroundExecutor.isShutdown()) {
+            backgroundExecutor.shutdown();
+            try {
+                if (!backgroundExecutor.awaitTermination(5, java.util.concurrent.TimeUnit.SECONDS)) {
+                    backgroundExecutor.shutdownNow();
+                }
+            } catch (InterruptedException e) {
+                backgroundExecutor.shutdownNow();
+                Thread.currentThread().interrupt();
+            }
         }
     }
 }

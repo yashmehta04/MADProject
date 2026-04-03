@@ -5,20 +5,29 @@ import android.animation.ObjectAnimator;
 import android.animation.ValueAnimator;
 import android.content.Intent;
 import android.graphics.Color;
+import android.graphics.drawable.Drawable;
 import android.graphics.PorterDuff;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.util.Log;
 import android.view.View;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.animation.OvershootInterpolator;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestListener;
+import com.bumptech.glide.request.target.SimpleTarget;
+import com.bumptech.glide.request.transition.Transition;
 
 import com.example.madproject.R;
 import com.example.madproject.models.SongsList;
@@ -166,10 +175,37 @@ public class GlassmorphismNowPlayingActivity extends AppCompatActivity {
      * Load album art with glassmorphism effect
      */
     private void loadAlbumArt() {
-        // TODO: Load actual album art using Glide
-        // For now, use placeholder
-        ivAlbumArt.setImageResource(R.drawable.ic_music_note);
-        ivBlurredBackground.setImageResource(R.drawable.ic_music_note);
+        if (currentSong == null || ivAlbumArt == null || ivBlurredBackground == null) {
+            Log.w("GlassmorphismNowPlaying", "Cannot load album art - missing views or song data");
+            return;
+        }
+        
+        try {
+            // Load actual album art using Glide
+            Glide.with(this)
+                .load(currentSong.getPath())
+                .placeholder(R.drawable.ic_music_note)
+                .error(R.drawable.ic_music_note)
+                .into(new SimpleTarget<Drawable>() {
+                    @Override
+                    public void onResourceReady(@NonNull Drawable resource, @Nullable Transition<? super Drawable> transition) {
+                        ivAlbumArt.setImageDrawable(resource);
+                        ivBlurredBackground.setImageDrawable(resource);
+                    }
+                    
+                    @Override
+                    public void onLoadFailed(@Nullable Drawable errorDrawable) {
+                        // Fallback to placeholder
+                        ivAlbumArt.setImageResource(R.drawable.ic_music_note);
+                        ivBlurredBackground.setImageResource(R.drawable.ic_music_note);
+                    }
+                });
+        } catch (Exception e) {
+            Log.e("GlassmorphismNowPlaying", "Error loading album art", e);
+            // Fallback to placeholder
+            ivAlbumArt.setImageResource(R.drawable.ic_music_note);
+            ivBlurredBackground.setImageResource(R.drawable.ic_music_note);
+        }
     }
 
     /**
@@ -286,16 +322,65 @@ public class GlassmorphismNowPlayingActivity extends AppCompatActivity {
      * Start color transitions
      */
     private void startColorTransitions() {
-        // TODO: Implement color transitions based on mood
-        // This would change the gradient colors based on the current mood
+        if (currentMood == null) {
+            Log.w("GlassmorphismNowPlaying", "Cannot start color transitions - no mood data");
+            return;
+        }
+        
+        try {
+            // Implement color transitions based on mood
+            // This would change the gradient colors based on the current mood
+            int moodColor = getMoodColor(currentMood);
+            
+            // Create subtle color animation
+            ValueAnimator colorAnimator = ValueAnimator.ofArgb(0x40000000, moodColor | 0x40000000);
+            colorAnimator.setDuration(3000);
+            colorAnimator.setRepeatCount(ValueAnimator.INFINITE);
+            colorAnimator.setRepeatMode(ValueAnimator.REVERSE);
+            colorAnimator.addUpdateListener(animation -> {
+                int color = (int) animation.getAnimatedValue();
+                if (ivBlurredBackground != null) {
+                    ivBlurredBackground.setColorFilter(color, android.graphics.PorterDuff.Mode.SRC_ATOP);
+                }
+            });
+            colorAnimator.start();
+            
+            Log.d("GlassmorphismNowPlaying", "Color transitions started for mood: " + currentMood);
+        } catch (Exception e) {
+            Log.e("GlassmorphismNowPlaying", "Error starting color transitions", e);
+        }
     }
 
     /**
      * Start parallax effects
      */
     private void startParallaxEffects() {
-        // TODO: Implement parallax scrolling effects
-        // This would create depth perception during scrolling
+        if (cardAlbumArt == null) {
+            Log.w("GlassmorphismNowPlaying", "Cannot start parallax effects - album art view not found");
+            return;
+        }
+        
+        try {
+            // Implement parallax scrolling effects
+            // This would create depth perception during scrolling
+            ValueAnimator parallaxAnimator = ValueAnimator.ofFloat(0f, 1f);
+            parallaxAnimator.setDuration(8000);
+            parallaxAnimator.setRepeatCount(ValueAnimator.INFINITE);
+            parallaxAnimator.setRepeatMode(ValueAnimator.REVERSE);
+            parallaxAnimator.addUpdateListener(animation -> {
+                float value = (float) animation.getAnimatedValue();
+                float translationX = (float) Math.sin(value * Math.PI * 2) * 20f;
+                float translationY = (float) Math.cos(value * Math.PI * 2) * 10f;
+                
+                cardAlbumArt.setTranslationX(translationX);
+                cardAlbumArt.setTranslationY(translationY);
+            });
+            parallaxAnimator.start();
+            
+            Log.d("GlassmorphismNowPlaying", "Parallax effects started");
+        } catch (Exception e) {
+            Log.e("GlassmorphismNowPlaying", "Error starting parallax effects", e);
+        }
     }
 
     /**

@@ -17,7 +17,7 @@ import java.util.concurrent.Executors;
 public class HybridMoodAnalyzer {
     
     private static final String TAG = "HybridMoodAnalyzer";
-    private static HybridMoodAnalyzer instance;
+    private static volatile HybridMoodAnalyzer instance;
     
     // Analysis components
     private final AdvancedAudioAnalyzer advancedAnalyzer;
@@ -88,9 +88,13 @@ public class HybridMoodAnalyzer {
     /**
      * Get singleton instance
      */
-    public static synchronized HybridMoodAnalyzer getInstance(Context context) {
+    public static HybridMoodAnalyzer getInstance(Context context) {
         if (instance == null) {
-            instance = new HybridMoodAnalyzer(context.getApplicationContext());
+            synchronized (HybridMoodAnalyzer.class) {
+                if (instance == null) {
+                    instance = new HybridMoodAnalyzer(context.getApplicationContext());
+                }
+            }
         }
         return instance;
     }

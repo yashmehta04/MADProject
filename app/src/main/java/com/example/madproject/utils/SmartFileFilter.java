@@ -177,8 +177,8 @@ public class SmartFileFilter {
      * Advanced metadata analysis to detect voice recordings
      */
     private static boolean isLikelyVoiceRecording(SongsList song) {
+        MediaMetadataRetriever retriever = new MediaMetadataRetriever();
         try {
-            MediaMetadataRetriever retriever = new MediaMetadataRetriever();
             retriever.setDataSource(song.getPath());
             
             // Check for missing or suspicious metadata
@@ -186,8 +186,6 @@ public class SmartFileFilter {
             String album = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ALBUM);
             String genre = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_GENRE);
             String year = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_YEAR);
-            
-            retriever.release();
             
             // Voice recordings typically have missing metadata
             int metadataScore = 0;
@@ -236,38 +234,12 @@ public class SmartFileFilter {
             Log.w(TAG, "Error analyzing metadata for: " + song.getPath(), e);
             // If we can't analyze metadata, assume it's music (safer)
             return false;
-        }
-    }
-    
-    /**
-     * Check if file has proper music metadata
-     */
-    private static boolean hasMusicMetadata(SongsList song) {
-        try {
-            MediaMetadataRetriever retriever = new MediaMetadataRetriever();
-            retriever.setDataSource(song.getPath());
-            
-            String artist = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ARTIST);
-            String album = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ALBUM);
-            String genre = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_GENRE);
-            
-            retriever.release();
-            
-            // Has proper music metadata if at least artist and album are present
-            boolean hasMetadata = (artist != null && !artist.trim().isEmpty() && 
-                                !artist.toLowerCase().contains("unknown")) &&
-                               (album != null && !album.trim().isEmpty() && 
-                                !album.toLowerCase().contains("unknown"));
-            
-            if (hasMetadata) {
-                Log.d(TAG, "Music metadata confirmed for: " + song.getTitle());
+        } finally {
+            try {
+                retriever.release();
+            } catch (Exception e) {
+                Log.w(TAG, "Error releasing MediaMetadataRetriever", e);
             }
-            
-            return hasMetadata;
-            
-        } catch (Exception e) {
-            Log.w(TAG, "Error checking music metadata for: " + song.getPath(), e);
-            return false;
         }
     }
     

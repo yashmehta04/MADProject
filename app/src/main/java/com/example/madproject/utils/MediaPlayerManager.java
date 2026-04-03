@@ -14,7 +14,7 @@ import java.io.IOException;
 public class MediaPlayerManager {
 
     private static final String TAG = "MediaPlayerManager";
-    private static MediaPlayerManager instance;
+    private static volatile MediaPlayerManager instance;
     private MediaPlayer mediaPlayer;
     private boolean isPrepared = false;
 
@@ -25,9 +25,13 @@ public class MediaPlayerManager {
     /**
      * Get the singleton instance.
      */
-    public static synchronized MediaPlayerManager getInstance() {
+    public static MediaPlayerManager getInstance() {
         if (instance == null) {
-            instance = new MediaPlayerManager();
+            synchronized (MediaPlayerManager.class) {
+                if (instance == null) {
+                    instance = new MediaPlayerManager();
+                }
+            }
         }
         return instance;
     }

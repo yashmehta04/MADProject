@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Offline mood classification algorithm for local songs.
@@ -74,17 +75,19 @@ public final class MoodAlgorithm {
                 // Batch process and insert
                 ArrayList<String[]> batchEntries = new ArrayList<>();
                 MediaMetadataRetriever retriever = new MediaMetadataRetriever();
-
-                for (SongsList song : untagged) {
-                    String genre = extractGenre(retriever, song.getPath());
-                    String mood = classifySong(genre, song.getTitle(), song.getDuration());
-                    batchEntries.add(new String[]{song.getPath(), mood});
-                }
-
+                
                 try {
-                    retriever.release();
-                } catch (Exception e) {
-                    Log.w(TAG, "Error releasing retriever", e);
+                    for (SongsList song : untagged) {
+                        String genre = extractGenre(retriever, song.getPath());
+                        String mood = classifySong(genre, song.getTitle(), song.getDuration());
+                        batchEntries.add(new String[]{song.getPath(), mood});
+                    }
+                } finally {
+                    try {
+                        retriever.release();
+                    } catch (Exception e) {
+                        Log.w(TAG, "Error releasing retriever", e);
+                    }
                 }
 
                 // Batch insert into SQLite (single transaction)
@@ -98,7 +101,18 @@ public final class MoodAlgorithm {
                 if (callback != null) callback.run();
             }
         });
-        executor.shutdown();
+        try {
+            executor.shutdown();
+            // Wait for tasks to complete, but don't block indefinitely
+            if (!executor.awaitTermination(30, TimeUnit.SECONDS)) {
+                Log.w(TAG, "Executor did not terminate within 30 seconds, forcing shutdown");
+                executor.shutdownNow();
+            }
+        } catch (InterruptedException e) {
+            Log.w(TAG, "Interrupted while waiting for executor termination", e);
+            executor.shutdownNow();
+            Thread.currentThread().interrupt();
+        }
     }
 
     /**

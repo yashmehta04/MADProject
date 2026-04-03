@@ -148,14 +148,12 @@ public class GenreMetadataExtractor {
      * Extract genre from file metadata
      */
     private static String extractFromMetadata(SongsList song) {
+        MediaMetadataRetriever retriever = new MediaMetadataRetriever();
         try {
-            MediaMetadataRetriever retriever = new MediaMetadataRetriever();
             retriever.setDataSource(song.getPath());
             
             // Try different metadata keys
             String genre = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_GENRE);
-            
-            retriever.release();
             
             if (genre != null && !genre.trim().isEmpty() && !genre.equals("Unknown")) {
                 return normalizeGenre(genre);
@@ -166,6 +164,12 @@ public class GenreMetadataExtractor {
         } catch (Exception e) {
             Log.w(TAG, "Error reading metadata for: " + song.getPath(), e);
             return null;
+        } finally {
+            try {
+                retriever.release();
+            } catch (Exception e) {
+                Log.w(TAG, "Error releasing MediaMetadataRetriever", e);
+            }
         }
     }
     

@@ -15,7 +15,7 @@ import com.google.common.util.concurrent.MoreExecutors;
 import java.util.concurrent.ExecutionException;
 
 public class ExoPlayerManager {
-    private static ExoPlayerManager instance;
+    private static volatile ExoPlayerManager instance;
     private MediaController mediaController;
     private boolean isPrepared = false;
     private Player.Listener playerListener;
@@ -23,9 +23,13 @@ public class ExoPlayerManager {
     private ExoPlayerManager() {
     }
 
-    public static synchronized ExoPlayerManager getInstance() {
+    public static ExoPlayerManager getInstance() {
         if (instance == null) {
-            instance = new ExoPlayerManager();
+            synchronized (ExoPlayerManager.class) {
+                if (instance == null) {
+                    instance = new ExoPlayerManager();
+                }
+            }
         }
         return instance;
     }

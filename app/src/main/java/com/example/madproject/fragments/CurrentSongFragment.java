@@ -610,9 +610,21 @@ public class CurrentSongFragment extends Fragment {
     }
 
     @Override
+    public void onDestroy() {
+        super.onDestroy();
+        // Clean up Handler callbacks to prevent memory leaks
+        if (handler != null) {
+            handler.removeCallbacks(seekBarUpdater);
+        }
+        songSelectionListener = null;
+    }
+
+    @Override
     public void onDetach() {
         super.onDetach();
-        handler.removeCallbacks(seekBarUpdater);
+        if (handler != null) {
+            handler.removeCallbacks(seekBarUpdater);
+        }
         songSelectionListener = null;
     }
 }

@@ -1,6 +1,8 @@
 package com.example.madproject.utils;
 
 import android.media.MediaMetadataRetriever;
+import android.util.Log;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -35,16 +37,21 @@ public class LyricsLoader {
             return result;
 
         // Strategy 2: Check embedded lyrics in metadata
+        MediaMetadataRetriever mmr = new MediaMetadataRetriever();
         try {
-            MediaMetadataRetriever mmr = new MediaMetadataRetriever();
             mmr.setDataSource(audioPath);
             // METADATA_KEY_LYRICS is not a standard key; some formats store it differently
             // We try a generic approach
             String embedded = mmr.extractMetadata(25); // 25 is sometimes LYRICS
-            mmr.release();
             if (embedded != null && !embedded.isEmpty())
                 return embedded;
         } catch (Exception ignored) {
+        } finally {
+            try {
+                mmr.release();
+            } catch (Exception e) {
+                Log.w("LyricsLoader", "Error releasing MediaMetadataRetriever", e);
+            }
         }
 
         return null;

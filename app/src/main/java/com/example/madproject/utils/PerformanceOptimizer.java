@@ -36,7 +36,7 @@ public class PerformanceOptimizer {
     private static final int MAX_CONCURRENT_ANALYSES = 3;
     private static final long MEMORY_CLEANUP_INTERVAL_MS = 300000; // 5 minutes
     
-    private static PerformanceOptimizer instance;
+    private static volatile PerformanceOptimizer instance;
     private final Context context;
     
     // Caches
@@ -72,9 +72,13 @@ public class PerformanceOptimizer {
         startPeriodicCleanup();
     }
     
-    public static synchronized PerformanceOptimizer getInstance(Context context) {
+    public static PerformanceOptimizer getInstance(Context context) {
         if (instance == null) {
-            instance = new PerformanceOptimizer(context.getApplicationContext());
+            synchronized (PerformanceOptimizer.class) {
+                if (instance == null) {
+                    instance = new PerformanceOptimizer(context.getApplicationContext());
+                }
+            }
         }
         return instance;
     }
