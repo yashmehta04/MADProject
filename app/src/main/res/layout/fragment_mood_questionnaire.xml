@@ -1,0 +1,264 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/background"
+    android:fillViewport="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="20dp"
+        android:paddingBottom="100dp">
+
+        <!-- Header -->
+        <TextView
+            android:id="@+id/tv_mood_header"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="🎧 Discover Your Mood"
+            android:textSize="28sp"
+            android:textStyle="bold"
+            android:textColor="@color/text_primary"
+            android:gravity="center"
+            android:layout_marginTop="12dp"
+            android:layout_marginBottom="4dp" />
+
+        <TextView
+            android:id="@+id/tv_mood_subtitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Answer 5 quick questions and we\'ll find the perfect songs for your mood"
+            android:textSize="14sp"
+            android:textColor="@color/text_secondary"
+            android:gravity="center"
+            android:layout_marginBottom="24dp" />
+
+        <!-- Progress indicator -->
+        <LinearLayout
+            android:id="@+id/progress_container"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center"
+            android:layout_marginBottom="24dp">
+
+            <View
+                android:id="@+id/progress_dot_1"
+                android:layout_width="12dp"
+                android:layout_height="12dp"
+                android:layout_margin="6dp"
+                android:background="@drawable/bg_mood_dot_active" />
+
+            <View
+                android:id="@+id/progress_dot_2"
+                android:layout_width="12dp"
+                android:layout_height="12dp"
+                android:layout_margin="6dp"
+                android:background="@drawable/bg_mood_dot_inactive" />
+
+            <View
+                android:id="@+id/progress_dot_3"
+                android:layout_width="12dp"
+                android:layout_height="12dp"
+                android:layout_margin="6dp"
+                android:background="@drawable/bg_mood_dot_inactive" />
+
+            <View
+                android:id="@+id/progress_dot_4"
+                android:layout_width="12dp"
+                android:layout_height="12dp"
+                android:layout_margin="6dp"
+                android:background="@drawable/bg_mood_dot_inactive" />
+
+            <View
+                android:id="@+id/progress_dot_5"
+                android:layout_width="12dp"
+                android:layout_height="12dp"
+                android:layout_margin="6dp"
+                android:background="@drawable/bg_mood_dot_inactive" />
+        </LinearLayout>
+
+        <!-- Question Card -->
+        <androidx.cardview.widget.CardView
+            android:id="@+id/card_question"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:cardBackgroundColor="@color/background_card"
+            app:cardCornerRadius="16dp"
+            app:cardElevation="8dp"
+            android:layout_marginBottom="20dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="24dp">
+
+                <!-- Question number -->
+                <TextView
+                    android:id="@+id/tv_question_number"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Question 1 of 5"
+                    android:textSize="13sp"
+                    android:textColor="@color/accent"
+                    android:textStyle="bold"
+                    android:layout_marginBottom="8dp" />
+
+                <!-- Question text -->
+                <TextView
+                    android:id="@+id/tv_question_text"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="How are you feeling right now?"
+                    android:textSize="20sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/text_primary"
+                    android:layout_marginBottom="20dp" />
+
+                <!-- Option A -->
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btn_option_a"
+                    android:layout_width="match_parent"
+                    android:layout_height="56dp"
+                    android:layout_marginBottom="10dp"
+                    android:text="Option A"
+                    android:textSize="15sp"
+                    android:textColor="@color/text_primary"
+                    android:textAllCaps="false"
+                    app:backgroundTint="@color/primary_light"
+                    app:cornerRadius="12dp"
+                    app:strokeColor="@color/divider"
+                    app:strokeWidth="1dp"
+                    style="@style/Widget.MaterialComponents.Button.OutlinedButton" />
+
+                <!-- Option B -->
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btn_option_b"
+                    android:layout_width="match_parent"
+                    android:layout_height="56dp"
+                    android:layout_marginBottom="10dp"
+                    android:text="Option B"
+                    android:textSize="15sp"
+                    android:textColor="@color/text_primary"
+                    android:textAllCaps="false"
+                    app:backgroundTint="@color/primary_light"
+                    app:cornerRadius="12dp"
+                    app:strokeColor="@color/divider"
+                    app:strokeWidth="1dp"
+                    style="@style/Widget.MaterialComponents.Button.OutlinedButton" />
+
+                <!-- Option C -->
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btn_option_c"
+                    android:layout_width="match_parent"
+                    android:layout_height="56dp"
+                    android:layout_marginBottom="10dp"
+                    android:text="Option C"
+                    android:textSize="15sp"
+                    android:textColor="@color/text_primary"
+                    android:textAllCaps="false"
+                    app:backgroundTint="@color/primary_light"
+                    app:cornerRadius="12dp"
+                    app:strokeColor="@color/divider"
+                    app:strokeWidth="1dp"
+                    style="@style/Widget.MaterialComponents.Button.OutlinedButton" />
+
+                <!-- Option D -->
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btn_option_d"
+                    android:layout_width="match_parent"
+                    android:layout_height="56dp"
+                    android:text="Option D"
+                    android:textSize="15sp"
+                    android:textColor="@color/text_primary"
+                    android:textAllCaps="false"
+                    app:backgroundTint="@color/primary_light"
+                    app:cornerRadius="12dp"
+                    app:strokeColor="@color/divider"
+                    app:strokeWidth="1dp"
+                    style="@style/Widget.MaterialComponents.Button.OutlinedButton" />
+
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
+
+        <!-- Result Card (hidden until quiz completes) -->
+        <androidx.cardview.widget.CardView
+            android:id="@+id/card_result"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:visibility="gone"
+            app:cardBackgroundColor="@color/background_card"
+            app:cardCornerRadius="16dp"
+            app:cardElevation="8dp"
+            android:layout_marginBottom="16dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="24dp"
+                android:gravity="center">
+
+                <TextView
+                    android:id="@+id/tv_result_emoji"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="😊"
+                    android:textSize="56sp"
+                    android:layout_marginBottom="12dp" />
+
+                <TextView
+                    android:id="@+id/tv_result_mood"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Your Mood: Happy"
+                    android:textSize="24sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/text_primary"
+                    android:layout_marginBottom="8dp" />
+
+                <TextView
+                    android:id="@+id/tv_result_count"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="We found 20 songs for you!"
+                    android:textSize="15sp"
+                    android:textColor="@color/text_secondary"
+                    android:layout_marginBottom="20dp" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btn_play_mood"
+                    android:layout_width="match_parent"
+                    android:layout_height="56dp"
+                    android:text="🎵  Play My Mood Playlist"
+                    android:textSize="16sp"
+                    android:textColor="@color/background"
+                    android:textAllCaps="false"
+                    android:textStyle="bold"
+                    app:backgroundTint="@color/accent"
+                    app:cornerRadius="28dp" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btn_retake"
+                    android:layout_width="match_parent"
+                    android:layout_height="48dp"
+                    android:layout_marginTop="8dp"
+                    android:text="Retake Quiz"
+                    android:textSize="14sp"
+                    android:textColor="@color/text_secondary"
+                    android:textAllCaps="false"
+                    app:backgroundTint="@color/transparent"
+                    app:cornerRadius="12dp"
+                    app:strokeColor="@color/divider"
+                    app:strokeWidth="1dp"
+                    style="@style/Widget.MaterialComponents.Button.OutlinedButton" />
+
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
+
+    </LinearLayout>
+</ScrollView>

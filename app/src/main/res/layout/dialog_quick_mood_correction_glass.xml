@@ -1,0 +1,193 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginHorizontal="24dp"
+    android:layout_marginVertical="48dp"
+    app:cardCornerRadius="32dp"
+    app:cardElevation="0dp"
+    app:cardBackgroundColor="@color/glass_overlay_medium">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="32dp">
+
+        <!-- Header -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Correct Mood"
+            android:textSize="24sp"
+            android:textColor="@color/glass_text_primary"
+            android:fontFamily="sans-serif-medium"
+            android:gravity="center"
+            android:layout_marginBottom="8dp" />
+
+        <TextView
+            android:id="@+id/tv_song_info"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Song Title - Artist"
+            android:textSize="16sp"
+            android:textColor="@color/glass_text_secondary"
+            android:fontFamily="sans-serif-light"
+            android:gravity="center"
+            android:layout_marginBottom="24dp" />
+
+        <!-- Current Mood Display -->
+        <androidx.cardview.widget.CardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="24dp"
+            app:cardCornerRadius="16dp"
+            app:cardElevation="0dp"
+            app:cardBackgroundColor="@color/glass_overlay_light">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center"
+                android:padding="16dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Current: "
+                    android:textSize="14sp"
+                    android:textColor="@color/glass_text_secondary"
+                    android:fontFamily="sans-serif-medium" />
+
+                <TextView
+                    android:id="@+id/tv_current_mood"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="😊 Happy"
+                    android:textSize="16sp"
+                    android:textColor="@color/glass_text_primary"
+                    android:fontFamily="sans-serif-medium" />
+
+            </LinearLayout>
+
+        </androidx.cardview.widget.CardView>
+
+        <!-- Mood Selection -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Select New Mood"
+            android:textSize="18sp"
+            android:textColor="@color/glass_text_primary"
+            android:fontFamily="sans-serif-medium"
+            android:layout_marginBottom="16dp" />
+
+        <RadioGroup
+            android:id="@+id/radio_group_moods"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginBottom="24dp">
+
+            <RadioButton
+                android:id="@+id/radio_happy"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:text="😊 Happy"
+                android:textSize="16sp"
+                android:textColor="@color/glass_text_primary"
+                android:fontFamily="sans-serif-medium"
+                android:buttonTint="@color/glass_accent"
+                android:background="@drawable/bg_glass_radio_button"
+                android:layout_marginBottom="8dp" />
+
+            <RadioButton
+                android:id="@+id/radio_sad"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:text="😢 Sad"
+                android:textSize="16sp"
+                android:textColor="@color/glass_text_primary"
+                android:fontFamily="sans-serif-medium"
+                android:buttonTint="@color/glass_accent"
+                android:background="@drawable/bg_glass_radio_button"
+                android:layout_marginBottom="8dp" />
+
+            <RadioButton
+                android:id="@+id/radio_calm"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:text="😌 Calm"
+                android:textSize="16sp"
+                android:textColor="@color/glass_text_primary"
+                android:fontFamily="sans-serif-medium"
+                android:buttonTint="@color/glass_accent"
+                android:background="@drawable/bg_glass_radio_button"
+                android:layout_marginBottom="8dp" />
+
+            <RadioButton
+                android:id="@+id/radio_energetic"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:text="🔥 Energetic"
+                android:textSize="16sp"
+                android:textColor="@color/glass_text_primary"
+                android:fontFamily="sans-serif-medium"
+                android:buttonTint="@color/glass_accent"
+                android:background="@drawable/bg_glass_radio_button"
+                android:layout_marginBottom="8dp" />
+
+            <RadioButton
+                android:id="@+id/radio_party"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:text="🎉 Party"
+                android:textSize="16sp"
+                android:textColor="@color/glass_text_primary"
+                android:fontFamily="sans-serif-medium"
+                android:buttonTint="@color/glass_accent"
+                android:background="@drawable/bg_glass_radio_button" />
+
+        </RadioGroup>
+
+        <!-- Buttons -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center">
+
+            <Button
+                android:id="@+id/btn_cancel"
+                android:layout_width="0dp"
+                android:layout_height="48dp"
+                android:layout_weight="1"
+                android:layout_marginEnd="12dp"
+                android:text="Cancel"
+                android:textSize="16sp"
+                android:textColor="@color/glass_text_secondary"
+                android:fontFamily="sans-serif-medium"
+                android:background="@drawable/bg_glass_button_cancel"
+                style="@style/GlassButton" />
+
+            <Button
+                android:id="@+id/btn_confirm"
+                android:layout_width="0dp"
+                android:layout_height="48dp"
+                android:layout_weight="1"
+                android:layout_marginStart="12dp"
+                android:text="Confirm"
+                android:textSize="16sp"
+                android:textColor="@color/white"
+                android:fontFamily="sans-serif-medium"
+                android:background="@drawable/bg_glass_button_confirm"
+                style="@style/GlassButton" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+</androidx.cardview.widget.CardView>

@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginHorizontal="12dp"
+    android:layout_marginVertical="4dp"
+    android:background="@drawable/bg_playlist_card"
+    android:padding="16dp"
+    android:foreground="?attr/selectableItemBackground">
+
+    <!-- Playlist Icon -->
+    <ImageView
+        android:id="@+id/iv_playlist_icon"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:src="@drawable/ic_playlist"
+        android:tint="@color/accent_secondary"
+        android:padding="8dp"
+        android:background="@drawable/bg_album_art_circle"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <!-- Playlist Name -->
+    <TextView
+        android:id="@+id/tv_playlist_name"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="14dp"
+        android:layout_marginEnd="8dp"
+        android:ellipsize="end"
+        android:maxLines="1"
+        android:text="Playlist Name"
+        android:textColor="@color/text_primary"
+        android:textSize="17sp"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toTopOf="@id/tv_song_count"
+        app:layout_constraintEnd_toStartOf="@id/btn_delete_playlist"
+        app:layout_constraintStart_toEndOf="@id/iv_playlist_icon"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_chainStyle="packed" />
+
+    <!-- Song Count -->
+    <TextView
+        android:id="@+id/tv_song_count"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="14dp"
+        android:layout_marginTop="2dp"
+        android:text="0 songs"
+        android:textColor="@color/text_secondary"
+        android:textSize="13sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/btn_delete_playlist"
+        app:layout_constraintStart_toEndOf="@id/iv_playlist_icon"
+        app:layout_constraintTop_toBottomOf="@id/tv_playlist_name" />
+
+    <!-- Delete Button -->
+    <ImageButton
+        android:id="@+id/btn_delete_playlist"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:src="@drawable/ic_delete"
+        android:tint="@color/text_hint"
+        android:scaleType="centerInside"
+        android:contentDescription="Delete Playlist"
+        android:padding="8dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

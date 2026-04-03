@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Glassmorphism Color Palette -->
+    <color name="glass_background">#0A0A0F</color>
+    <color name="glass_surface">#1A1A2E</color>
+    <color name="glass_surface_variant">#252542</color>
+    <color name="glass_primary">#6C63FF</color>
+    <color name="glass_primary_variant">#5A52D5</color>
+    <color name="glass_accent">#FF6B6B</color>
+    <color name="glass_accent_variant">#FF5252</color>
+    
+    <!-- Glass Text Colors -->
+    <color name="glass_text_primary">#FFFFFF</color>
+    <color name="glass_text_secondary">#B8B8D1</color>
+    <color name="glass_text_tertiary">#8888A3</color>
+    <color name="glass_text_hint">#5A5A7A</color>
+    
+    <!-- Glass Overlay Colors -->
+    <color name="glass_overlay_light">#20FFFFFF</color>
+    <color name="glass_overlay_medium">#15FFFFFF</color>
+    <color name="glass_overlay_dark">#10FFFFFF</color>
+    <color name="glass_blur_overlay">#0DFFFFFF</color>
+    
+    <!-- Mood Colors with Glass Effect -->
+    <color name="mood_happy_glass">#FFD93D</color>
+    <color name="mood_sad_glass">#6C63FF</color>
+    <color name="mood_calm_glass">#6BCF7F</color>
+    <color name="mood_energetic_glass">#FF6B6B</color>
+    <color name="mood_party_glass">#FF61D8</color>
+    
+    <!-- Gradient Colors -->
+    <color name="glass_gradient_start">#6C63FF</color>
+    <color name="glass_gradient_end">#FF61D8</color>
+    <color name="glass_gradient_accent">#FF6B6B</color>
+    
+    <!-- Glass Effect Colors -->
+    <color name="glass_border">#30FFFFFF</color>
+    <color name="glass_shadow">#0A000000</color>
+    <color name="glass_highlight">#40FFFFFF</color>
+    <color name="glass_ripple">#40FFFFFF</color>
+    
+    <!-- Immersive Background Colors -->
+    <color name="immersive_bg_1">#0A0A0F</color>
+    <color name="immersive_bg_2">#1A1A2E</color>
+    <color name="immersive_bg_3">#252542</color>
+    <color name="immersive_bg_4">#303058</color>
+</resources>

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ImageView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/iv_particle"
+    android:layout_width="8dp"
+    android:layout_height="8dp"
+    android:layout_margin="4dp"
+    android:src="@drawable/ic_particle"
+    android:tint="@color/glass_overlay_medium"
+    android:alpha="0.6" />

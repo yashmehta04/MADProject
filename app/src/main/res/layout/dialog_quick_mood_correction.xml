@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="24dp">
+
+    <!-- Song Information -->
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Song Information"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        android:textColor="@color/primary_color"
+        android:layout_marginBottom="16dp" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:background="@drawable/bg_card"
+        android:padding="16dp"
+        android:layout_marginBottom="20dp">
+
+        <TextView
+            android:id="@+id/tv_song_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Song Title"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:textColor="@color/text_primary"
+            android:layout_marginBottom="4dp" />
+
+        <TextView
+            android:id="@+id/tv_song_artist"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Artist Name"
+            android:textSize="12sp"
+            android:textColor="@color/text_secondary"
+            android:layout_marginBottom="8dp" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/divider_color"
+            android:layout_marginBottom="8dp" />
+
+        <TextView
+            android:id="@+id/tv_current_mood"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Current: 😊 Happy"
+            android:textSize="13sp"
+            android:textStyle="bold"
+            android:textColor="@color/text_primary" />
+
+    </LinearLayout>
+
+    <!-- Mood Selection -->
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Select Correct Mood:"
+        android:textSize="14sp"
+        android:textStyle="bold"
+        android:textColor="@color/text_primary"
+        android:layout_marginBottom="12dp" />
+
+    <RadioGroup
+        android:id="@+id/radio_group_moods"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="20dp">
+
+        <RadioButton
+            android:id="@+id/radio_happy"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="😊 Happy"
+            android:textSize="14sp"
+            android:textColor="@color/text_primary"
+            android:layout_marginBottom="8dp"
+            android:padding="8dp" />
+
+        <RadioButton
+            android:id="@+id/radio_sad"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="😢 Sad"
+            android:textSize="14sp"
+            android:textColor="@color/text_primary"
+            android:layout_marginBottom="8dp"
+            android:padding="8dp" />
+
+        <RadioButton
+            android:id="@+id/radio_calm"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="😌 Calm"
+            android:textSize="14sp"
+            android:textColor="@color/text_primary"
+            android:layout_marginBottom="8dp"
+            android:padding="8dp" />
+
+        <RadioButton
+            android:id="@+id/radio_energetic"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="🔥 Energetic"
+            android:textSize="14sp"
+            android:textColor="@color/text_primary"
+            android:layout_marginBottom="8dp"
+            android:padding="8dp" />
+
+        <RadioButton
+            android:id="@+id/radio_party"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="🎉 Party"
+            android:textSize="14sp"
+            android:textColor="@color/text_primary"
+            android:padding="8dp" />
+
+    </RadioGroup>
+
+    <!-- Confirm Button -->
+    <Button
+        android:id="@+id/btn_confirm"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Confirm Mood Correction"
+        android:textSize="14sp"
+        android:textStyle="bold"
+        android:textColor="@color/white"
+        android:background="@drawable/bg_main_gradient"
+        android:padding="12dp"
+        android:layout_marginTop="8dp" />
+
+</LinearLayout>
