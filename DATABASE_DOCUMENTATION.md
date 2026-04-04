@@ -61,7 +61,7 @@ CREATE TABLE mood_tags (
 | Column | Type | Constraints | Description | Example |
 |---------|--------|-------------|------------|----------|
 | **id** | INTEGER PRIMARY KEY AUTOINCREMENT | Auto-increment unique identifier | 1, 2, 3... |
-| **song_path** | TEXT NOT NULL UNIQUE | Absolute file path - UNIQUE (unique identifier), not PRIMARY KEY; id is the PRIMARY KEY | `/storage/emulated/0/Music/song.mp3` |
+| **song_path** | TEXT | NOT NULL UNIQUE | Absolute file path; unique identifier; primary key is `id` | `/storage/emulated/0/Music/song.mp3` |
 | **mood_tag** | TEXT NOT NULL | Mood category: HAPPY, SAD, CALM, ENERGETIC | `HAPPY`, `SAD`, `CALM`, `ENERGETIC` |
 | **confidence_score** | REAL DEFAULT 0.0 | Algorithm confidence (0.0-1.0) | 0.85, 0.67, 0.92 |
 | **cultural_context** | TEXT DEFAULT 'UNIVERSAL' | Music context: BOLLYWOOD, WESTERN, UNIVERSAL | `BOLLYWOOD`, `WESTERN`, `UNIVERSAL` |
@@ -199,7 +199,7 @@ CREATE TABLE favorites (
 | Column | Type | Constraints | Description | Example |
 |---------|--------|-------------|------------|----------|
 | **id** | INTEGER PRIMARY KEY AUTOINCREMENT | Auto-increment favorite identifier | 1, 2, 3... |
-| **song_path** | TEXT NOT NULL UNIQUE | Absolute file path - UNIQUE, not PRIMARY KEY; id is the PRIMARY KEY | `/storage/emulated/0/Music/song.mp3` |
+| **song_path** | TEXT | NOT NULL UNIQUE | Absolute file path; unique identifier; primary key is `id` | `/storage/emulated/0/Music/song.mp3` |
 | **song_title** | TEXT | Song title (cached for display) | `My Song Title` |
 | **song_artist** | TEXT | Song artist (cached for display) | `Artist Name` |
 | **song_album** | TEXT | Song album name | `Album Name` |

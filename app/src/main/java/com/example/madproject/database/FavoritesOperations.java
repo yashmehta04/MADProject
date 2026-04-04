@@ -34,15 +34,24 @@ public class FavoritesOperations {
             return false; // Already exists
         }
 
-        SQLiteDatabase db = dbHandler.getWritableDatabase();
-        ContentValues values = new ContentValues();
-        values.put(FavoritesDBHandler.COLUMN_SONG_TITLE, song.getTitle());
-        values.put(FavoritesDBHandler.COLUMN_SONG_PATH, song.getPath());
-        values.put(FavoritesDBHandler.COLUMN_ARTIST, song.getArtist());
+        SQLiteDatabase db = null;
+        try {
+            db = dbHandler.getWritableDatabase();
+            ContentValues values = new ContentValues();
+            values.put(FavoritesDBHandler.COLUMN_SONG_TITLE, song.getTitle());
+            values.put(FavoritesDBHandler.COLUMN_SONG_PATH, song.getPath());
+            values.put(FavoritesDBHandler.COLUMN_ARTIST, song.getArtist());
 
-        long result = db.insert(FavoritesDBHandler.TABLE_FAVORITES, null, values);
-        db.close();
-        return result != -1;
+            long result = db.insert(FavoritesDBHandler.TABLE_FAVORITES, null, values);
+            return result != -1;
+        } catch (Exception e) {
+            Log.e(TAG, "Failed to add favorite", e);
+            return false;
+        } finally {
+            if (db != null) {
+                db.close();
+            }
+        }
     }
 
     /**
@@ -52,12 +61,21 @@ public class FavoritesOperations {
      * @return true if removed successfully
      */
     public boolean removeFavorite(String path) {
-        SQLiteDatabase db = dbHandler.getWritableDatabase();
-        int result = db.delete(FavoritesDBHandler.TABLE_FAVORITES,
-                FavoritesDBHandler.COLUMN_SONG_PATH + " = ?",
-                new String[] { path });
-        db.close();
-        return result > 0;
+        SQLiteDatabase db = null;
+        try {
+            db = dbHandler.getWritableDatabase();
+            int result = db.delete(FavoritesDBHandler.TABLE_FAVORITES,
+                    FavoritesDBHandler.COLUMN_SONG_PATH + " = ?",
+                    new String[] { path });
+            return result > 0;
+        } catch (Exception e) {
+            Log.e(TAG, "Failed to remove favorite", e);
+            return false;
+        } finally {
+            if (db != null) {
+                db.close();
+            }
+        }
     }
 
     /**
@@ -121,8 +139,16 @@ public class FavoritesOperations {
      * Clears all favorites.
      */
     public void clearAllFavorites() {
-        SQLiteDatabase db = dbHandler.getWritableDatabase();
-        db.delete(FavoritesDBHandler.TABLE_FAVORITES, null, null);
-        db.close();
+        SQLiteDatabase db = null;
+        try {
+            db = dbHandler.getWritableDatabase();
+            db.delete(FavoritesDBHandler.TABLE_FAVORITES, null, null);
+        } catch (Exception e) {
+            Log.e(TAG, "Failed to clear all favorites", e);
+        } finally {
+            if (db != null) {
+                db.close();
+            }
+        }
     }
 }

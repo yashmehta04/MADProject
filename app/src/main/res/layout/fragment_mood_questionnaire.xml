@@ -202,7 +202,7 @@
                         android:layout_height="24dp"
                         android:src="@drawable/ic_previous"
                         android:layout_marginEnd="4dp"
-                        android:contentDescription="@null" />
+                        android:contentDescription="@string/back_description" />
 
                     <TextView
                         android:id="@+id/tv_back"
@@ -276,7 +276,6 @@
                     android:layout_width="match_parent"
                     android:layout_height="56dp"
                     android:text="@string/play_mood"
-                    android:text="🎵  Play My Mood Playlist"
                     android:textSize="16sp"
                     android:textColor="@color/background"
                     android:textAllCaps="false"

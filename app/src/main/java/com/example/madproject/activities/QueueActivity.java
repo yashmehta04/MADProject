@@ -58,18 +58,28 @@ public class QueueActivity extends AppCompatActivity implements QueueAdapter.OnQ
                 int fromPosition = viewHolder.getAdapterPosition();
                 int toPosition = target.getAdapterPosition();
                 
-                // Update filtered queue
+                // Validate positions
+                if (fromPosition == RecyclerView.NO_POSITION || 
+                    toPosition == RecyclerView.NO_POSITION ||
+                    fromPosition >= filteredQueue.size() || 
+                    toPosition >= filteredQueue.size()) {
+                    return false;
+                }
+                
+                // Update filtered queue via adapter
                 adapter.onItemMove(fromPosition, toPosition);
                 
-                // Update original queue to maintain consistency
-                SongsList item = filteredQueue.remove(fromPosition);
-                filteredQueue.add(toPosition, item);
+                // Capture moved item reference before adapter changes
+                SongsList movedItem = filteredQueue.get(toPosition);
                 
-                // Find and update in original queue
-                int originalFromPos = queue.indexOf(item);
+                // Update original queue to maintain consistency
+                int originalFromPos = queue.indexOf(movedItem);
                 if (originalFromPos != -1) {
-                    SongsList targetItem = filteredQueue.get(toPosition);
+                    // Find target item in original queue (before the move)
+                    SongsList targetItem = fromPosition < toPosition ? 
+                        queue.get(originalFromPos + 1) : queue.get(originalFromPos - 1);
                     int originalToPos = queue.indexOf(targetItem);
+                    
                     if (originalToPos != -1) {
                         SongsList originalItem = queue.remove(originalFromPos);
                         queue.add(originalToPos, originalItem);
@@ -122,9 +132,13 @@ public class QueueActivity extends AppCompatActivity implements QueueAdapter.OnQ
         } else {
             String searchQuery = query.toLowerCase().trim();
             for (SongsList song : queue) {
-                if (song.getTitle().toLowerCase().contains(searchQuery) ||
-                    song.getArtist().toLowerCase().contains(searchQuery) ||
-                    (song.getAlbum() != null && song.getAlbum().toLowerCase().contains(searchQuery))) {
+                String title = song.getTitle() != null ? song.getTitle().toLowerCase() : "";
+                String artist = song.getArtist() != null ? song.getArtist().toLowerCase() : "";
+                String album = song.getAlbum() != null ? song.getAlbum().toLowerCase() : "";
+                
+                if (title.contains(searchQuery) ||
+                    artist.contains(searchQuery) ||
+                    album.contains(searchQuery)) {
                     filteredQueue.add(song);
                 }
             }
@@ -145,11 +159,25 @@ public class QueueActivity extends AppCompatActivity implements QueueAdapter.OnQ
 
     @Override
     public void onQueueItemClick(int position) {
+        // Validate position
+        if (position < 0 || position >= filteredQueue.size()) {
+            setResult(RESULT_CANCELED);
+            finish();
+            return;
+        }
+        
         // Get the song from filtered queue
         SongsList selectedSong = filteredQueue.get(position);
         
         // Find the position in the original queue
         int originalPosition = queue.indexOf(selectedSong);
+        
+        // Validate original position
+        if (originalPosition == -1) {
+            setResult(RESULT_CANCELED);
+            finish();
+            return;
+        }
         
         // Navigate back and tell main activity which song to play
         setResult(RESULT_OK, getIntent().putExtra("queue_position", originalPosition));
