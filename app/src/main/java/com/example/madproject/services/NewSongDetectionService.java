@@ -134,19 +134,18 @@ public class NewSongDetectionService extends Service {
      * Scans for new songs and automatically tags them with moods
      */
     private void scanAndTagNewSongs() {
-        // Check if scan is already in progress
-        if (isScanning.get()) {
-            Log.d(TAG, "Scan already in progress, skipping");
-            return;
-        }
-        
         // Check if service is still alive
         if (!isServiceAlive) {
             Log.d(TAG, "Service not alive, skipping scan");
             return;
         }
         
-        isScanning.set(true);
+        // Atomic check-then-set - only proceed if not already scanning
+        if (!isScanning.compareAndSet(false, true)) {
+            Log.d(TAG, "Scan already in progress, skipping");
+            return;
+        }
+        
         scanThread = new Thread(() -> {
             try {
                 Log.d(TAG, "Scanning for new songs...");

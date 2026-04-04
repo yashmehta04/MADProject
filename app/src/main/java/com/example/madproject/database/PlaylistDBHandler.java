@@ -65,10 +65,35 @@ public class PlaylistDBHandler extends SQLiteOpenHelper {
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         Log.d("PlaylistDBHandler", "Upgrading database from version " + oldVersion + " to " + newVersion);
-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_PLAYLIST_SONGS);
-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_PLAYLISTS);
-        onCreate(db);
-        Log.d("PlaylistDBHandler", "Database upgrade completed");
+        
+        // Non-destructive migration - preserve existing data
+        if (oldVersion < 2) {
+            // Add new columns for version 2
+            try {
+                db.execSQL("ALTER TABLE " + TABLE_PLAYLISTS + " ADD COLUMN description TEXT DEFAULT ''");
+                db.execSQL("ALTER TABLE " + TABLE_PLAYLISTS + " ADD COLUMN cover_image TEXT DEFAULT ''");
+                db.execSQL("ALTER TABLE " + TABLE_PLAYLIST_SONGS + " ADD COLUMN date_added INTEGER DEFAULT 0");
+                Log.d("PlaylistDBHandler", "Added version 2 columns successfully");
+            } catch (Exception e) {
+                Log.e("PlaylistDBHandler", "Error adding version 2 columns", e);
+            }
+        }
+        
+        if (oldVersion < 3) {
+            // Add new columns for version 3
+            try {
+                db.execSQL("ALTER TABLE " + TABLE_PLAYLISTS + " ADD COLUMN is_favorite INTEGER DEFAULT 0");
+                db.execSQL("ALTER TABLE " + TABLE_PLAYLIST_SONGS + " ADD COLUMN play_count INTEGER DEFAULT 0");
+                Log.d("PlaylistDBHandler", "Added version 3 columns successfully");
+            } catch (Exception e) {
+                Log.e("PlaylistDBHandler", "Error adding version 3 columns", e);
+            }
+        }
+        
+        // Continue with incremental version upgrades as needed
+        // Future versions: if (oldVersion < 4) { ... }
+        
+        Log.d("PlaylistDBHandler", "Database upgrade completed without data loss");
     }
 
     @Override

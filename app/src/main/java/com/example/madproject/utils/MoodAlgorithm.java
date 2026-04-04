@@ -202,7 +202,7 @@ public final class MoodAlgorithm {
                     || t.contains("celebrate") || t.contains("sunshine")
                     || t.contains("beautiful") || t.contains("good") || t.contains("wonderful")
                     || t.contains("alive") || t.contains("summer")
-                    || t.contains("party") || t.contains("club") || t.contains("night") || t.contains("dance")) {
+                    || t.contains("party") || t.contains("club") || t.contains("night out") || t.contains("dance")) {
                 happyScore += 2;
             }
 

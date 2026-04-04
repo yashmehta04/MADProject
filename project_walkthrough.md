@@ -18,7 +18,7 @@ SonicWave is a premium, offline-first music player for Android. Version 2.2.0 in
 - **Background Indexing**: Periodic tasks to ensure library metadata remains up-to-date.
 - **Resource Monitoring**: Real-time tracking of CPU, memory, and battery usage to ensure smooth performance.
 
-**Files:** [AdvancedPerformanceManager.java](file:///c:/Users/yashm/AndroidStudioProjects/MADProject/app/src/main/java/com/example/madproject/performance/AdvancedPerformanceManager.java), [PerformanceOptimizer.java](file:///c:/Users/yashm/AndroidStudioProjects/MADProject/app/src/main/java/com/example/madproject/utils/PerformanceOptimizer.java)
+**Files:** [AdvancedPerformanceManager.java](./app/src/main/java/com/example/madproject/performance/AdvancedPerformanceManager.java), [PerformanceOptimizer.java](./app/src/main/java/com/example/madproject/utils/PerformanceOptimizer.java)
 
 ### 2. 🛡️ Enterprise Crash Reporting & Analytics
 - **Global Exception Handling**: Custom handler that logs crashes locally with full diagnostic data.
@@ -26,7 +26,7 @@ SonicWave is a premium, offline-first music player for Android. Version 2.2.0 in
 - **Diagnostic Logging**: Automated collection of device specifications and app state during errors.
 - **Local Analytics**: JSON-based engine for tracking feature usage and performance metrics offline.
 
-**Files:** [CrashReporter.java](file:///c:/Users/yashm/AndroidStudioProjects/MADProject/app/src/main/java/com/example/madproject/analytics/CrashReporter.java)
+**Files:** [CrashReporter.java](./app/src/main/java/com/example/madproject/analytics/CrashReporter.java)
 
 ### 3. 🧠 Sophisticated Mood & Genre Analysis Pipeline
 
@@ -58,7 +58,7 @@ The system is not static. When a user corrects a mood via the `QuickMoodCorrecti
 2. The `UserFeedbackManager` records the delta between predicted and actual mood.
 3. Future predictions for similar acoustic vectors are adjusted based on these learned offsets.
 
-**Files:** [HybridMoodAnalyzer.java](file:///c:/Users/yashm/AndroidStudioProjects/MADProject/app/src/main/java/com/example/madproject/utils/HybridMoodAnalyzer.java), [SophisticatedMoodClassifier.java](file:///c:/Users/yashm/AndroidStudioProjects/MADProject/app/src/main/java/com/example/madproject/utils/SophisticatedMoodClassifier.java), [GenreMetadataExtractor.java](file:///c:/Users/yashm/AndroidStudioProjects/MADProject/app/src/main/java/com/example/madproject/utils/GenreMetadataExtractor.java)
+**Files:** [HybridMoodAnalyzer.java](./app/src/main/java/com/example/madproject/utils/HybridMoodAnalyzer.java), [SophisticatedMoodClassifier.java](./app/src/main/java/com/example/madproject/utils/SophisticatedMoodClassifier.java), [GenreMetadataExtractor.java](./app/src/main/java/com/example/madproject/utils/GenreMetadataExtractor.java)
 
 ---
 
@@ -68,7 +68,7 @@ The system is not static. When a user corrects a mood via the `QuickMoodCorrecti
 - **Immersive Effects**: Animated entrances, pulse scaling for playing states, and background particle systems.
 - **Stability First**: Legacy `MainActivity` remains default while glassmorphic activities are available for testing.
 
-**Files:** [GlassmorphismMainActivity.java](file:///c:/Users/yashm/AndroidStudioProjects/MADProject/app/src/main/java/com/example/madproject/ui/GlassmorphismMainActivity.java), [styles_glassmorphism.xml](file:///c:/Users/yashm/AndroidStudioProjects/MADProject/app/src/main/res/values/styles_glassmorphism.xml)
+**Files:** [GlassmorphismMainActivity.java](./app/src/main/java/com/example/madproject/ui/GlassmorphismMainActivity.java), [styles_glassmorphism.xml](./app/src/main/res/values/styles_glassmorphism.xml)
 
 ---
 

@@ -16,8 +16,6 @@ import com.example.madproject.models.SongsList;
 
 import java.util.ArrayList;
 
-import androidx.appcompat.widget.SearchView;
-
 public class QueueActivity extends AppCompatActivity implements QueueAdapter.OnQueueActionListener {
 
     private RecyclerView rvQueue;

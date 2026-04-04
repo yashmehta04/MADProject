@@ -157,6 +157,7 @@ public class GenreMetadataExtractor {
      */
     public static String extractGenre(MediaMetadataRetriever retriever, SongsList song) {
         if (song == null || song.getPath() == null) return "Unknown";
+        if (retriever == null) return "Unknown";
         
         try {
             // Method 1: Extract from metadata

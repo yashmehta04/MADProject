@@ -115,6 +115,9 @@ public class MainActivity extends AppCompatActivity
     private boolean repeatOn = false;
     private boolean playContinueFlag = true;
     private ArrayList<Integer> shuffledIndices;
+    
+    // Reusable player listener
+    private androidx.media3.common.Player.Listener playerListener;
 
     // Sleep Timer
     private Handler sleepTimerHandler = new Handler(Looper.getMainLooper());
@@ -153,6 +156,22 @@ public class MainActivity extends AppCompatActivity
 
         playerManager = ExoPlayerManager.getInstance();
         playerManager.initialize(this, null);
+        
+        // Initialize reusable player listener
+        playerListener = new androidx.media3.common.Player.Listener() {
+            @Override
+            public void onPlaybackStateChanged(int playbackState) {
+                if (playbackState == androidx.media3.common.Player.STATE_ENDED) {
+                    if (!repeatOn && playContinueFlag) onNextSong();
+                }
+            }
+            @Override
+            public void onIsPlayingChanged(boolean isPlaying) {
+                updateMiniPlayerPlayPause();
+                if (currentSongFragment != null) currentSongFragment.updatePlayPauseButton();
+            }
+        };
+        
         allSongs = new ArrayList<>();
         
         // Initialize background thread pool
@@ -532,19 +551,7 @@ public class MainActivity extends AppCompatActivity
         UsageTracker.saveLastPlayedSong(this, song.getTitle(), song.getArtist(),
                 song.getPath(), song.getAlbumId(), song.getDuration());
 
-        playerManager.setPlayerListener(new androidx.media3.common.Player.Listener() {
-            @Override
-            public void onPlaybackStateChanged(int playbackState) {
-                if (playbackState == androidx.media3.common.Player.STATE_ENDED) {
-                    if (!repeatOn && playContinueFlag) onNextSong();
-                }
-            }
-            @Override
-            public void onIsPlayingChanged(boolean isPlaying) {
-                updateMiniPlayerPlayPause();
-                if (currentSongFragment != null) currentSongFragment.updatePlayPauseButton();
-            }
-        });
+        playerManager.setPlayerListener(playerListener);
 
         if (currentSongFragment != null) currentSongFragment.updateCurrentSong(song);
         updateMiniPlayer(song);

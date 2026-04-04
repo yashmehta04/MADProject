@@ -241,8 +241,10 @@ public class PlaylistFragment extends Fragment implements PlaylistAdapter.OnPlay
                 .setPositiveButton("Add Selected", (dialog, which) -> {
                     Log.d("PlaylistFragment", "Starting to add songs to playlist: " + playlist.getName());
                     int added = 0;
+                    int attempted = 0;
                     for (int i = 0; i < checkBoxes.size(); i++) {
                         if (checkBoxes.get(i).isChecked()) {
+                            attempted++;
                             SongsList song = songRefs.get(i);
                             Log.d("PlaylistFragment", "Attempting to add song: " + song.getTitle() + " (ID: " + playlist.getId() + ")");
                             if (playlistOps.addSongToPlaylist(playlist.getId(), song)) {
@@ -253,7 +255,7 @@ public class PlaylistFragment extends Fragment implements PlaylistAdapter.OnPlay
                             }
                         }
                     }
-                    Log.d("PlaylistFragment", "Total songs attempted to add: " + checkBoxes.size() + ", successfully added: " + added);
+                    Log.d("PlaylistFragment", "Total songs attempted to add: " + attempted + ", successfully added: " + added);
                     if (added > 0) {
                         Toast.makeText(getContext(), "Added " + added + " songs!", Toast.LENGTH_SHORT).show();
                         loadPlaylists();

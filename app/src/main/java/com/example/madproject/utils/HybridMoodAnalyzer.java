@@ -500,8 +500,17 @@ public class HybridMoodAnalyzer {
             AdvancedAudioAnalyzer.AudioAnalysis analysis) {
         
         // Create simple breakdown for enhanced results
+        // Normalize scores to sum to 1.0
+        double remainingScore = 1.0 - confidence;
+        double[] normalizedScores = new double[]{
+            confidence, 
+            remainingScore / 3.0, 
+            remainingScore / 3.0, 
+            remainingScore / 3.0
+        };
+        
         PretrainedMoodModel.MoodPrediction mlPrediction = new PretrainedMoodModel.MoodPrediction(
-                mood, confidence, new double[]{confidence, 0.1, 0.1, 0.1});
+                mood, confidence, normalizedScores);
         CulturalMoodAdapter.MoodPrediction culturalPrediction = new CulturalMoodAdapter.MoodPrediction(
                 mood, confidence, "Western", confidence);
         double[] weights = {0.8, 0.2, 0.0};

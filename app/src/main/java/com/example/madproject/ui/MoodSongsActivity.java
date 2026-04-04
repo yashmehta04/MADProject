@@ -379,10 +379,4 @@ public class MoodSongsActivity extends AppCompatActivity {
             animationHandler.removeCallbacksAndMessages(null);
         }
     }
-
-    @Override
-    public void onBackPressed() {
-        // Go back to MainActivity instead of finishing
-        super.onBackPressed();
-    }
 }

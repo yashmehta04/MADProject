@@ -9,4 +9,6 @@
     <string name="now_playing">Now Playing</string>
     <string name="unknown_title">Unknown Title</string>
     <string name="unknown_artist">Unknown Artist</string>
+    <string name="go_to_dashboard">Go To Dashboard</string>
+    <string name="back">Back</string>
 </resources>

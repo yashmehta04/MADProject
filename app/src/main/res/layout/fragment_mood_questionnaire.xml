@@ -201,13 +201,14 @@
                         android:layout_width="24dp"
                         android:layout_height="24dp"
                         android:src="@drawable/ic_previous"
-                        android:layout_marginEnd="4dp" />
+                        android:layout_marginEnd="4dp"
+                        android:contentDescription="@null" />
 
                     <TextView
                         android:id="@+id/tv_back"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Back"
+                        android:text="@string/back"
                         android:textSize="14sp"
                         android:textColor="@color/text_secondary" />
                 </LinearLayout>
@@ -216,7 +217,7 @@
                     android:id="@+id/btn_go_dashboard_question"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Go To Dashboard"
+                    android:text="@string/go_to_dashboard"
                     android:textAllCaps="false"
                     android:textColor="@color/text_secondary"
                     app:cornerRadius="12dp"
@@ -247,7 +248,7 @@
                     android:id="@+id/tv_result_emoji"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="😊"
+                    android:text="@string/result_emoji"
                     android:textSize="56sp"
                     android:layout_marginBottom="12dp" />
 
@@ -255,7 +256,7 @@
                     android:id="@+id/tv_result_mood"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Your Mood: Happy"
+                    android:text="@string/your_mood"
                     android:textSize="24sp"
                     android:textStyle="bold"
                     android:textColor="@color/text_primary"
@@ -265,7 +266,7 @@
                     android:id="@+id/tv_result_count"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="We found 20 songs for you!"
+                    android:text="@string/result_count"
                     android:textSize="15sp"
                     android:textColor="@color/text_secondary"
                     android:layout_marginBottom="20dp" />
@@ -274,6 +275,7 @@
                     android:id="@+id/btn_play_mood"
                     android:layout_width="match_parent"
                     android:layout_height="56dp"
+                    android:text="@string/play_mood"
                     android:text="🎵  Play My Mood Playlist"
                     android:textSize="16sp"
                     android:textColor="@color/background"
@@ -302,7 +304,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="48dp"
                     android:layout_marginTop="8dp"
-                    android:text="Go To Dashboard"
+                    android:text="@string/go_to_dashboard"
                     android:textAllCaps="false"
                     android:textColor="@color/text_secondary"
                     app:cornerRadius="12dp"

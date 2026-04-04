@@ -4,6 +4,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.util.Log;
 
 import com.example.madproject.models.SongsList;
 
@@ -15,6 +16,7 @@ import java.util.ArrayList;
  */
 public class FavoritesOperations {
 
+    private static final String TAG = "FavoritesOperations";
     private final FavoritesDBHandler dbHandler;
 
     public FavoritesOperations(Context context) {
@@ -75,7 +77,7 @@ public class FavoritesOperations {
 
             exists = cursor != null && cursor.getCount() > 0;
         } catch (Exception e) {
-            e.printStackTrace();
+            Log.e(TAG, "Failed to check if song is favorite", e);
         } finally {
             db.close();
         }
@@ -108,7 +110,7 @@ public class FavoritesOperations {
                 } while (cursor.moveToNext());
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            Log.e(TAG, "Failed to get all favorite songs", e);
         } finally {
             db.close();
         }

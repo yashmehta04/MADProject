@@ -84,6 +84,9 @@ public class MoodQuestionnaireFragment extends Fragment {
     private int sadCount = 0;
     private int calmCount = 0;
     private int energeticCount = 0;
+    
+    // Track selected answers for each question
+    private Integer[] selectedAnswers = new Integer[QUESTIONS.length];
 
     // Views
     private TextView tvQuestionNumber;
@@ -186,6 +189,28 @@ public class MoodQuestionnaireFragment extends Fragment {
         if (btnBackContainer != null) {
             btnBackContainer.setOnClickListener(v -> {
                 if (currentQuestion > 0) {
+                    // Remove current question's mood vote before going back
+                    Integer previousAnswer = selectedAnswers[currentQuestion];
+                    if (previousAnswer != null) {
+                        // Decrement the corresponding mood count
+                        switch (previousAnswer) {
+                            case 0: // HAPPY
+                                happyCount--;
+                                break;
+                            case 1: // SAD
+                                sadCount--;
+                                break;
+                            case 2: // CALM
+                                calmCount--;
+                                break;
+                            case 3: // ENERGETIC
+                                energeticCount--;
+                                break;
+                        }
+                        // Clear the stored answer
+                        selectedAnswers[currentQuestion] = null;
+                    }
+                    
                     // Go to previous question
                     currentQuestion--;
                     displayQuestion(currentQuestion);
@@ -237,6 +262,29 @@ public class MoodQuestionnaireFragment extends Fragment {
             selectedBtn.setStrokeColorResource(R.color.accent);
             selectedBtn.setStrokeWidth(3);
         }
+
+        // If user is re-selecting on the same question, remove previous vote
+        Integer previousAnswer = selectedAnswers[currentQuestion];
+        if (previousAnswer != null) {
+            // Decrement the previous mood count
+            switch (previousAnswer) {
+                case 0: // HAPPY
+                    happyCount--;
+                    break;
+                case 1: // SAD
+                    sadCount--;
+                    break;
+                case 2: // CALM
+                    calmCount--;
+                    break;
+                case 3: // ENERGETIC
+                    energeticCount--;
+                    break;
+            }
+        }
+
+        // Store the new answer
+        selectedAnswers[currentQuestion] = optionIndex;
 
         // Record the mood vote
         String mood = OPTION_MOODS[optionIndex];

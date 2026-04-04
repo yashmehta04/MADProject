@@ -243,7 +243,7 @@ public class PlaylistOperations {
                     long duration = cursor.getLong(cursor.getColumnIndexOrThrow(PlaylistDBHandler.COLUMN_SONG_DURATION));
                     long albumId = cursor.getLong(cursor.getColumnIndexOrThrow(PlaylistDBHandler.COLUMN_SONG_ALBUM_ID));
                     
-                    // Use the 6-parameter constructor: id, title, artist, path, duration, album, albumId
+                    // Use the 7-parameter constructor: id, title, artist, path, duration, album, albumId
                     // We'll use 0 for id since it's not stored in playlist_songs table
                     songs.add(new SongsList(0, title, artist, path, duration, album, albumId));
                 } while (cursor.moveToNext());

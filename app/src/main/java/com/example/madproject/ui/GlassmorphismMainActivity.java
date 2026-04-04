@@ -24,6 +24,7 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.activity.OnBackPressedCallback;
 
 import com.example.madproject.R;
 import com.example.madproject.models.SongsList;
@@ -77,6 +78,18 @@ public class GlassmorphismMainActivity extends AppCompatActivity {
         // Set glassmorphism theme
         setTheme(R.style.GlassmorphismTheme);
         setContentView(R.layout.activity_main_glassmorphism);
+
+        // Setup back navigation callback
+        getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                // Navigate to MainActivity
+                Intent intent = new Intent(GlassmorphismMainActivity.this, com.example.madproject.activities.MainActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                startActivity(intent);
+                finish();
+            }
+        });
 
         // Initialize UI safely
         try {
@@ -406,12 +419,6 @@ public class GlassmorphismMainActivity extends AppCompatActivity {
         if (animationHandler != null) {
             animationHandler.removeCallbacksAndMessages(null);
         }
-    }
-
-    @Override
-    public void onBackPressed() {
-        // Go back to MainActivity instead of finishing
-        super.onBackPressed();
     }
 
     /**

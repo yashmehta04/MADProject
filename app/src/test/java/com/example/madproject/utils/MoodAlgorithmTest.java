@@ -94,10 +94,10 @@ public class MoodAlgorithmTest {
     public void testClassifySongByTitle() {
         // Test title-based classification
         assertEquals("HAPPY", MoodAlgorithm.classifySong("", "Happy Birthday", 180000));
-        assertEquals("SAD", MoodAlgorithm.classifyGenre("", "Sad Song", 120000));
-        assertEquals("CALM", MoodAlgorithm.classifyGenre("", "Peaceful", 180000));
-        assertEquals("ENERGETIC", MoodAlgorithm.classifyGenre("", "Energy", 180000));
-        assertEquals("HAPPY", MoodAlgorithm.classifyGenre("", "Party Time", 180000));
+        assertEquals("SAD", MoodAlgorithm.classifySong("", "Sad Song", 120000));
+        assertEquals("CALM", MoodAlgorithm.classifySong("", "Peaceful", 180000));
+        assertEquals("ENERGETIC", MoodAlgorithm.classifySong("", "Energy", 180000));
+        assertEquals("HAPPY", MoodAlgorithm.classifySong("", "Party Time", 180000));
     }
 
     @Test

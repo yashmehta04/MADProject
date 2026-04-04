@@ -22,6 +22,7 @@ import com.example.madproject.interfaces.SongSelectionListener;
 import com.example.madproject.models.LibraryGroupItem;
 import com.example.madproject.models.SongsList;
 import com.google.android.material.tabs.TabLayout;
+import com.google.android.material.tabs.TabLayout.Tab;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -333,14 +334,23 @@ public class AllSongFragment extends Fragment
 
         // Navigate between tabs based on requirement
         if (currentTab == 3) { // Folders -> Artists
-            tabLayout.getTabAt(2).select();
-            return true;
+            Tab tab = tabLayout != null ? tabLayout.getTabAt(2) : null;
+            if (tab != null) {
+                tab.select();
+                return true;
+            }
         } else if (currentTab == 2) { // Artists -> Albums
-            tabLayout.getTabAt(1).select();
-            return true;
+            Tab tab = tabLayout != null ? tabLayout.getTabAt(1) : null;
+            if (tab != null) {
+                tab.select();
+                return true;
+            }
         } else if (currentTab == 1) { // Albums -> Songs
-            tabLayout.getTabAt(0).select();
-            return true;
+            Tab tab = tabLayout != null ? tabLayout.getTabAt(0) : null;
+            if (tab != null) {
+                tab.select();
+                return true;
+            }
         }
 
         return false; // Let MainActivity handle (go to dashboard)
