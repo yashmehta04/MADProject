@@ -54,52 +54,52 @@ public final class StorageScanner {
         String sortOrder = MediaStore.Audio.Media.TITLE + " ASC";
 
         ContentResolver contentResolver = context.getContentResolver();
-        Cursor cursor = contentResolver.query(uri, projection, selection, null, sortOrder);
+        try (Cursor cursor = contentResolver.query(uri, projection, selection, null, sortOrder)) {
+            if (cursor != null && cursor.moveToFirst()) {
+                // Get column indices
+                int idColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media._ID);
+                int titleColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.TITLE);
+                int artistColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ARTIST);
+                int pathColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DATA);
+                int durationColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DURATION);
+                int albumColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ALBUM);
+                int albumIdColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ALBUM_ID);
+                int dateAddedColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DATE_ADDED);
 
-        if (cursor != null && cursor.moveToFirst()) {
-            // Get column indices
-            int idColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media._ID);
-            int titleColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.TITLE);
-            int artistColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ARTIST);
-            int pathColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DATA);
-            int durationColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DURATION);
-            int albumColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ALBUM);
-            int albumIdColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ALBUM_ID);
-            int dateAddedColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DATE_ADDED);
+                do {
+                    long id = cursor.getLong(idColumn);
+                    String title = cursor.getString(titleColumn);
+                    String artist = cursor.getString(artistColumn);
+                    String path = cursor.getString(pathColumn);
+                    long duration = cursor.getLong(durationColumn);
+                    String album = cursor.getString(albumColumn);
+                    long albumId = cursor.getLong(albumIdColumn);
+                    long dateAdded = cursor.getLong(dateAddedColumn);
 
-            do {
-                long id = cursor.getLong(idColumn);
-                String title = cursor.getString(titleColumn);
-                String artist = cursor.getString(artistColumn);
-                String path = cursor.getString(pathColumn);
-                long duration = cursor.getLong(durationColumn);
-                String album = cursor.getString(albumColumn);
-                long albumId = cursor.getLong(albumIdColumn);
-                long dateAdded = cursor.getLong(dateAddedColumn);
+                    // Handle unknown artist
+                    if (artist == null || artist.equals("<unknown>")) {
+                        artist = "Unknown Artist";
+                    }
 
-                // Handle unknown artist
-                if (artist == null || artist.equals("<unknown>")) {
-                    artist = "Unknown Artist";
-                }
+                    // Handle unknown album
+                    if (album == null || album.equals("<unknown>")) {
+                        album = "Unknown Album";
+                    }
 
-                // Handle unknown album
-                if (album == null || album.equals("<unknown>")) {
-                    album = "Unknown Album";
-                }
+                    // Duplicate Detection Signature
+                    String duplicateKey = (title + "_" + artist + "_" + duration).toLowerCase();
 
-                // Duplicate Detection Signature
-                String duplicateKey = (title + "_" + artist + "_" + duration).toLowerCase();
+                    if (!uniqueKeys.contains(duplicateKey)) {
+                        uniqueKeys.add(duplicateKey);
+                        SongsList song = new SongsList(id, title, artist, path, duration, album, albumId);
+                        song.setDateAdded(dateAdded);
+                        songsList.add(song);
+                    }
 
-                if (!uniqueKeys.contains(duplicateKey)) {
-                    uniqueKeys.add(duplicateKey);
-                    SongsList song = new SongsList(id, title, artist, path, duration, album, albumId);
-                    song.setDateAdded(dateAdded);
-                    songsList.add(song);
-                }
-
-            } while (cursor.moveToNext());
-
-            cursor.close();
+                } while (cursor.moveToNext());
+            }
+        } catch (Exception e) {
+            android.util.Log.e("StorageScanner", "Error scanning songs", e);
         }
 
         return songsList;

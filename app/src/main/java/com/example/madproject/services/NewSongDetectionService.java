@@ -35,12 +35,15 @@ public class NewSongDetectionService extends Service {
     private BroadcastReceiver mediaScanReceiver;
     private boolean isReceiverRegistered = false;
     private java.util.concurrent.atomic.AtomicBoolean isScanning = new java.util.concurrent.atomic.AtomicBoolean(false);
+    private volatile boolean isServiceAlive = false;
+    private Thread scanThread;
     
     @Override
     public void onCreate() {
         super.onCreate();
         mainHandler = new Handler(Looper.getMainLooper());
         setupMediaScanReceiver();
+        isServiceAlive = true;
         Log.d(TAG, "NewSongDetectionService started");
     }
     
@@ -118,10 +121,10 @@ public class NewSongDetectionService extends Service {
         
         IntentFilter filter = new IntentFilter();
         filter.addAction(Intent.ACTION_MEDIA_SCANNER_FINISHED);
-        filter.addAction(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
+        // Remove ACTION_MEDIA_SCANNER_SCAN_FILE as it's not handled
         filter.addDataScheme("file");
         
-        registerReceiver(mediaScanReceiver, filter, Context.RECEIVER_NOT_EXPORTED);
+        registerReceiver(mediaScanReceiver, filter);
         isReceiverRegistered = true;
         
         Log.d(TAG, "Media scan receiver registered");
@@ -132,12 +135,19 @@ public class NewSongDetectionService extends Service {
      */
     private void scanAndTagNewSongs() {
         // Check if scan is already in progress
-        if (!isScanning.compareAndSet(false, true)) {
+        if (isScanning.get()) {
             Log.d(TAG, "Scan already in progress, skipping");
             return;
         }
         
-        new Thread(() -> {
+        // Check if service is still alive
+        if (!isServiceAlive) {
+            Log.d(TAG, "Service not alive, skipping scan");
+            return;
+        }
+        
+        isScanning.set(true);
+        scanThread = new Thread(() -> {
             try {
                 Log.d(TAG, "Scanning for new songs...");
                 
@@ -162,6 +172,11 @@ public class NewSongDetectionService extends Service {
                     // Tag new songs with moods
                     MoodAlgorithm.tagSongsInBackground(this, newSongs, () -> {
                         mainHandler.post(() -> {
+                            if (!isServiceAlive) {
+                                Log.d(TAG, "Service not alive, skipping UI updates");
+                                return;
+                            }
+                            
                             String message = "Processed " + newSongs.size() + " new songs with mood tags";
                             Toast.makeText(this, message, Toast.LENGTH_LONG).show();
                             Log.i(TAG, message);
@@ -170,23 +185,32 @@ public class NewSongDetectionService extends Service {
                             Intent updateIntent = new Intent("com.example.madproject.NEW_SONGS_DETECTED");
                             updateIntent.putExtra("new_songs_count", newSongs.size());
                             sendBroadcast(updateIntent);
+                            
+                            // Reset scanning flag only when all work completes
+                            isScanning.set(false);
                         });
                     });
                     
                 } else {
                     Log.d(TAG, "No new songs found");
+                    // Reset scanning flag when no new songs found
+                    isScanning.set(false);
                 }
                 
             } catch (Exception e) {
                 Log.e(TAG, "Error scanning for new songs", e);
                 mainHandler.post(() -> {
-                    Toast.makeText(this, "Error scanning for new songs", Toast.LENGTH_SHORT).show();
+                    if (isServiceAlive) {
+                        Toast.makeText(this, "Error scanning for new songs", Toast.LENGTH_SHORT).show();
+                    }
                 });
-            } finally {
-                // Reset scanning flag
+                // Reset scanning flag on error
                 isScanning.set(false);
             }
-        }).start();
+        });
+        
+        // Start the thread
+        scanThread.start();
     }
     
     @Nullable
@@ -198,6 +222,19 @@ public class NewSongDetectionService extends Service {
     @Override
     public void onDestroy() {
         super.onDestroy();
+        
+        // Set service as not alive
+        isServiceAlive = false;
+        
+        // Cancel any ongoing scan thread
+        if (scanThread != null && scanThread.isAlive()) {
+            scanThread.interrupt();
+            try {
+                scanThread.join(1000); // Wait up to 1 second for thread to finish
+            } catch (InterruptedException e) {
+                Log.w(TAG, "Interrupted while waiting for scan thread to finish", e);
+            }
+        }
         
         // Clear pending handler callbacks
         if (mainHandler != null) {

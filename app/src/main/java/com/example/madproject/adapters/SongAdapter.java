@@ -123,7 +123,11 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.SongViewHolder
         if (moodLoaderExecutor == null) return;
         
         // Clear cache on main thread
-        moodCache.clear();
+        synchronized (this) {
+            if (moodCache != null) {
+                moodCache.clear();
+            }
+        }
         
         // Copy fields to locals for thread safety
         final MoodOperations localMoodOps;
@@ -192,8 +196,9 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.SongViewHolder
                     
                     // Get mood from cache instead of database query with null safety
                     String songMood = null;
-                    if (song.getPath() != null && moodCache != null && moodCache.containsKey(song.getPath())) {
-                        songMood = moodCache.get(song.getPath());
+                    final java.util.concurrent.ConcurrentHashMap<String, String> localMoodCache = moodCache;
+                    if (song.getPath() != null && localMoodCache != null) {
+                        songMood = localMoodCache.get(song.getPath());
                     }
                     boolean matchesMood = songMood != null && 
                                          songMood.toLowerCase().contains(filterPattern);

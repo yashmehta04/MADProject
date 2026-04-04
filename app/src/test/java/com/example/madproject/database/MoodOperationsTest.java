@@ -94,7 +94,7 @@ public class MoodOperationsTest {
     @Test
     public void testDeleteMoodTag() {
         String songPath = "/test/song4.mp3";
-        String mood = "PARTY";
+        String mood = "HAPPY";
         
         // Insert mood tag
         moodOperations.insertMoodTag(songPath, mood, 0.8, "Test reasoning");

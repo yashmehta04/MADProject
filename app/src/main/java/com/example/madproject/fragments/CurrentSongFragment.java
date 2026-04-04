@@ -111,6 +111,12 @@ public class CurrentSongFragment extends Fragment {
         }
     };
 
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        handler.removeCallbacks(seekBarUpdater);
+    }
+
     public CurrentSongFragment() {
     }
 
@@ -297,8 +303,8 @@ public class CurrentSongFragment extends Fragment {
 
         // Fetch genre + metadata + Lyrics on a background thread
         new Thread(() -> {
+            MediaMetadataRetriever mmr = new MediaMetadataRetriever();
             try {
-                MediaMetadataRetriever mmr = new MediaMetadataRetriever();
                 mmr.setDataSource(requireContext(), Uri.parse(song.getPath()));
 
                 String genreStr = mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_GENRE);
@@ -437,8 +443,13 @@ public class CurrentSongFragment extends Fragment {
                         }
                     }
                 });
-                mmr.release();
-            } catch (Exception ignored) {
+            } catch (Exception e) {
+                Log.e("CurrentSong", "Error extracting metadata", e);
+            } finally {
+                try {
+                    mmr.release();
+                } catch (Exception ignored) {
+                }
             }
         }).start();
 

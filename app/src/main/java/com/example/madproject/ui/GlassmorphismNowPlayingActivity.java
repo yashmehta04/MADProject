@@ -1,12 +1,10 @@
 package com.example.madproject.ui;
 
-import android.animation.AnimatorSet;
-import android.animation.ObjectAnimator;
 import android.animation.ValueAnimator;
 import android.content.Intent;
 import android.graphics.Color;
-import android.graphics.drawable.Drawable;
 import android.graphics.PorterDuff;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -25,15 +23,12 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 import com.bumptech.glide.Glide;
-import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.target.SimpleTarget;
 import com.bumptech.glide.request.transition.Transition;
-
 import com.example.madproject.R;
+import com.example.madproject.dialogs.QuickMoodCorrectionDialog;
 import com.example.madproject.models.SongsList;
 import com.example.madproject.utils.MoodAlgorithm;
-// import com.example.madproject.utils.MoodOperations;
-import com.example.madproject.dialogs.QuickMoodCorrectionDialog;
 
 /**
  * Modern Glassmorphism Now Playing Activity with immersive effects,
@@ -329,7 +324,6 @@ public class GlassmorphismNowPlayingActivity extends AppCompatActivity {
         
         try {
             // Implement color transitions based on mood
-            // This would change the gradient colors based on the current mood
             int moodColor = getMoodColor(currentMood);
             
             // Create subtle color animation
@@ -340,7 +334,7 @@ public class GlassmorphismNowPlayingActivity extends AppCompatActivity {
             colorAnimator.addUpdateListener(animation -> {
                 int color = (int) animation.getAnimatedValue();
                 if (ivBlurredBackground != null) {
-                    ivBlurredBackground.setColorFilter(color, android.graphics.PorterDuff.Mode.SRC_ATOP);
+                    ivBlurredBackground.setColorFilter(color, PorterDuff.Mode.SRC_ATOP);
                 }
             });
             colorAnimator.start();
@@ -362,7 +356,6 @@ public class GlassmorphismNowPlayingActivity extends AppCompatActivity {
         
         try {
             // Implement parallax scrolling effects
-            // This would create depth perception during scrolling
             ValueAnimator parallaxAnimator = ValueAnimator.ofFloat(0f, 1f);
             parallaxAnimator.setDuration(8000);
             parallaxAnimator.setRepeatCount(ValueAnimator.INFINITE);
@@ -483,9 +476,15 @@ public class GlassmorphismNowPlayingActivity extends AppCompatActivity {
         if (slideAnimator != null) {
             slideAnimator.cancel();
         }
-        
+
         if (animationHandler != null) {
             animationHandler.removeCallbacksAndMessages(null);
         }
+    }
+
+    @Override
+    public void onBackPressed() {
+        // Go back to MainActivity instead of finishing
+        super.onBackPressed();
     }
 }

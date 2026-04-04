@@ -97,7 +97,7 @@ public final class MoodAlgorithm {
                 
                 try {
                     for (SongsList song : untagged) {
-                        String genre = extractGenre(retriever, song.getPath());
+                        String genre = GenreMetadataExtractor.extractGenre(retriever, song);
                         String mood = classifySong(genre, song.getTitle(), song.getDuration());
                         batchEntries.add(new String[]{song.getPath(), mood});
                     }
@@ -135,23 +135,6 @@ public final class MoodAlgorithm {
     }
 
     /**
-     * Extracts the genre from a song's ID3 tag using MediaMetadataRetriever.
-     *
-     * @param retriever Reusable retriever instance
-     * @param filePath  Absolute path to the audio file
-     * @return Genre string or null if not available
-     */
-    private static String extractGenre(MediaMetadataRetriever retriever, String filePath) {
-        try {
-            retriever.setDataSource(filePath);
-            return retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_GENRE);
-        } catch (Exception e) {
-            // File might be inaccessible or corrupt
-            return null;
-        }
-    }
-
-    /**
      * Classifies a song's mood using multi-factor scoring.
      *
      * Weight system:
@@ -175,26 +158,27 @@ public final class MoodAlgorithm {
             String g = genre.toLowerCase().trim();
 
             // HAPPY genres
-            if (g.contains("pop") || g.contains("dance") || g.contains("edm")
-                    || g.contains("disco") || g.contains("funk") || g.contains("reggae")
+            if (g.contains("pop") || g.contains("disco") || g.contains("funk") || g.contains("reggae")
                     || g.contains("ska") || g.contains("latin") || g.contains("k-pop")
-                    || g.contains("bollywood") || g.contains("filmi")) {
+                    || g.contains("bollywood") || g.contains("filmi") || g.contains("happy")
+                    || g.contains("party") || g.contains("club") || g.contains("dance")
+                    || g.contains("edm") || g.contains("house") || g.contains("techno")
+                    || g.contains("trance") || g.contains("dubstep") || g.contains("trap")) {
                 happyScore += 3;
             }
 
             // ENERGETIC genres
             if (g.contains("rock") || g.contains("metal") || g.contains("punk")
                     || g.contains("hard") || g.contains("grunge") || g.contains("industrial")
-                    || g.contains("drum") || g.contains("bass") || g.contains("dubstep")
-                    || g.contains("trap") || g.contains("hip-hop") || g.contains("hip hop")
-                    || g.contains("rap")) {
+                    || g.contains("drum") || g.contains("bass") || g.contains("hip-hop") 
+                    || g.contains("hip hop") || g.contains("rap")) {
                 energeticScore += 3;
             }
 
             // SAD genres
             if (g.contains("blues") || g.contains("soul") || g.contains("slow")
                     || g.contains("ballad") || g.contains("emo") || g.contains("gothic")
-                    || g.contains("country")) {
+                    || g.contains("country") || g.contains("sad")) {
                 sadScore += 3;
             }
 
@@ -203,7 +187,7 @@ public final class MoodAlgorithm {
                     || g.contains("jazz") || g.contains("lounge") || g.contains("chill")
                     || g.contains("new age") || g.contains("meditation")
                     || g.contains("instrumental") || g.contains("lo-fi") || g.contains("lofi")
-                    || g.contains("easy listening") || g.contains("folk")) {
+                    || g.contains("easy listening") || g.contains("folk") || g.contains("calm")) {
                 calmScore += 3;
             }
         }
@@ -214,10 +198,11 @@ public final class MoodAlgorithm {
 
             // HAPPY keywords
             if (t.contains("happy") || t.contains("joy") || t.contains("love")
-                    || t.contains("dance") || t.contains("fun")
-                    || t.contains("celebrate") || t.contains("sunshine") || t.contains("smile")
+                    || t.contains("smile") || t.contains("fun")
+                    || t.contains("celebrate") || t.contains("sunshine")
                     || t.contains("beautiful") || t.contains("good") || t.contains("wonderful")
-                    || t.contains("alive") || t.contains("summer")) {
+                    || t.contains("alive") || t.contains("summer")
+                    || t.contains("party") || t.contains("club") || t.contains("night") || t.contains("dance")) {
                 happyScore += 2;
             }
 
@@ -233,7 +218,7 @@ public final class MoodAlgorithm {
             // CALM keywords
             if (t.contains("peace") || t.contains("calm") || t.contains("quiet")
                     || t.contains("gentle") || t.contains("soft") || t.contains("dream")
-                    || t.contains("sleep") || t.contains("night") || t.contains("breeze")
+                    || t.contains("sleep") || t.contains("breeze")
                     || t.contains("ocean") || t.contains("river") || t.contains("moon")
                     || t.contains("whisper") || t.contains("lullaby")) {
                 calmScore += 2;
@@ -253,7 +238,7 @@ public final class MoodAlgorithm {
         long durationSec = duration / 1000;
         if (durationSec > 0) {
             if (durationSec < 150) {
-                // Short songs (<2.5 min) tend to be energetic or happy
+                // Short songs (<2.5 min) tend to be energetic
                 energeticScore += 1;
             } else if (durationSec > 360) {
                 // Long songs (>6 min) tend to be calm or ambient
@@ -308,17 +293,18 @@ public final class MoodAlgorithm {
      * Returns a display-friendly emoji + label for a mood.
      */
     public static String getMoodDisplayName(String mood) {
+        if (mood == null) return "Unknown";
         switch (mood) {
             case MOOD_HAPPY:
-                return "😊 Happy";
+                return "Happy";
             case MOOD_SAD:
-                return "😢 Sad";
+                return "Sad";
             case MOOD_CALM:
-                return "😌 Calm";
+                return "Calm";
             case MOOD_ENERGETIC:
-                return "🔥 Energetic";
+                return "Energetic";
             default:
-                return "🎵 Mixed";
+                return "Unknown";
         }
     }
 
@@ -326,6 +312,7 @@ public final class MoodAlgorithm {
      * Returns a color resource hint for each mood (used in UI theming).
      */
     public static int getMoodColor(String mood) {
+        if (mood == null) return 0xFF2196F3; // Blue
         switch (mood) {
             case MOOD_HAPPY:
                 return 0xFFFFD700; // Gold

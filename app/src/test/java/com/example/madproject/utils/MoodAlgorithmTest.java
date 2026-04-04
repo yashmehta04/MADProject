@@ -27,7 +27,6 @@ public class MoodAlgorithmTest {
         assertEquals("SAD", MoodAlgorithm.MOOD_SAD);
         assertEquals("CALM", MoodAlgorithm.MOOD_CALM);
         assertEquals("ENERGETIC", MoodAlgorithm.MOOD_ENERGETIC);
-        assertEquals("PARTY", MoodAlgorithm.MOOD_PARTY);
     }
 
     @Test
@@ -36,7 +35,6 @@ public class MoodAlgorithmTest {
         assertEquals("Sad", MoodAlgorithm.getMoodDisplayName("SAD"));
         assertEquals("Calm", MoodAlgorithm.getMoodDisplayName("CALM"));
         assertEquals("Energetic", MoodAlgorithm.getMoodDisplayName("ENERGETIC"));
-        assertEquals("Party", MoodAlgorithm.getMoodDisplayName("PARTY"));
         assertEquals("Unknown", MoodAlgorithm.getMoodDisplayName("INVALID_MOOD"));
         assertEquals("Unknown", MoodAlgorithm.getMoodDisplayName(null));
     }
@@ -48,7 +46,6 @@ public class MoodAlgorithmTest {
         assertNotNull(MoodAlgorithm.getMoodColor("SAD"));
         assertNotNull(MoodAlgorithm.getMoodColor("CALM"));
         assertNotNull(MoodAlgorithm.getMoodColor("ENERGETIC"));
-        assertNotNull(MoodAlgorithm.getMoodColor("PARTY"));
         assertNotNull(MoodAlgorithm.getMoodColor("INVALID_MOOD"));
         assertNotNull(MoodAlgorithm.getMoodColor(null));
     }
@@ -59,7 +56,6 @@ public class MoodAlgorithmTest {
         assertTrue(MoodAlgorithm.isValidMood("SAD"));
         assertTrue(MoodAlgorithm.isValidMood("CALM"));
         assertTrue(MoodAlgorithm.isValidMood("ENERGETIC"));
-        assertTrue(MoodAlgorithm.isValidMood("PARTY"));
         
         assertFalse(MoodAlgorithm.isValidMood("INVALID_MOOD"));
         assertFalse(MoodAlgorithm.isValidMood(""));
@@ -88,7 +84,7 @@ public class MoodAlgorithmTest {
         assertEquals("SAD", MoodAlgorithm.classifySong("blues", "Sad Song", 120000));
         assertEquals("CALM", MoodAlgorithm.classifySong("classical", "Calm Song", 300000));
         assertEquals("ENERGETIC", MoodAlgorithm.classifySong("rock", "Rock Song", 200000));
-        assertEquals("PARTY", MoodAlgorithm.classifySong("dance", "Party Song", 140000));
+        assertEquals("HAPPY", MoodAlgorithm.classifySong("dance", "Party Song", 140000));
         
         // Test unknown genre
         assertEquals("CALM", MoodAlgorithm.classifySong("unknown", "Test Song", 180000));
@@ -101,14 +97,14 @@ public class MoodAlgorithmTest {
         assertEquals("SAD", MoodAlgorithm.classifyGenre("", "Sad Song", 120000));
         assertEquals("CALM", MoodAlgorithm.classifyGenre("", "Peaceful", 180000));
         assertEquals("ENERGETIC", MoodAlgorithm.classifyGenre("", "Energy", 180000));
-        assertEquals("PARTY", MoodAlgorithm.classifyGenre("", "Party Time", 180000));
+        assertEquals("HAPPY", MoodAlgorithm.classifyGenre("", "Party Time", 180000));
     }
 
     @Test
     public void testClassifySongByDuration() {
         // Test duration-based classification
         assertEquals("CALM", MoodAlgorithm.classifySong("", "Long Song", 600000)); // 10 minutes
-        assertEquals("PARTY", MoodAlgorithm.classifySong("", "Short Song", 60000)); // 1 minute
+        assertEquals("ENERGETIC", MoodAlgorithm.classifySong("", "Short Song", 60000)); // 1 minute
         assertEquals("HAPPY", MoodAlgorithm.classifySong("", "Medium Song", 180000)); // 3 minutes
     }
 }

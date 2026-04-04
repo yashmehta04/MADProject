@@ -5,6 +5,7 @@ import android.content.Context;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -238,17 +239,26 @@ public class PlaylistFragment extends Fragment implements PlaylistAdapter.OnPlay
                 .setTitle("Add songs to \"" + playlist.getName() + "\"")
                 .setView(root)
                 .setPositiveButton("Add Selected", (dialog, which) -> {
+                    Log.d("PlaylistFragment", "Starting to add songs to playlist: " + playlist.getName());
                     int added = 0;
                     for (int i = 0; i < checkBoxes.size(); i++) {
                         if (checkBoxes.get(i).isChecked()) {
-                            if (playlistOps.addSongToPlaylist(playlist.getId(), songRefs.get(i))) {
+                            SongsList song = songRefs.get(i);
+                            Log.d("PlaylistFragment", "Attempting to add song: " + song.getTitle() + " (ID: " + playlist.getId() + ")");
+                            if (playlistOps.addSongToPlaylist(playlist.getId(), song)) {
                                 added++;
+                                Log.d("PlaylistFragment", "Successfully added song: " + song.getTitle());
+                            } else {
+                                Log.w("PlaylistFragment", "Failed to add song: " + song.getTitle());
                             }
                         }
                     }
+                    Log.d("PlaylistFragment", "Total songs attempted to add: " + checkBoxes.size() + ", successfully added: " + added);
                     if (added > 0) {
                         Toast.makeText(getContext(), "Added " + added + " songs!", Toast.LENGTH_SHORT).show();
                         loadPlaylists();
+                    } else {
+                        Toast.makeText(getContext(), "No songs were added or they already exist", Toast.LENGTH_SHORT).show();
                     }
                     // Now show existing songs
                     showExistingSongsDialog(playlist);

@@ -300,7 +300,7 @@ public class HybridMoodAnalyzer {
      */
     private MoodResult createMetadataResult(String metadataMood, String culturalContext) {
         AnalysisBreakdown breakdown = new AnalysisBreakdown(
-            new PretrainedMoodModel.MoodPrediction(metadataMood, 0.4, new double[]{0.2, 0.2, 0.2, 0.2, 0.2}), // Updated to 5 moods
+            new PretrainedMoodModel.MoodPrediction(metadataMood, 0.4, new double[]{0.25, 0.25, 0.25, 0.25}), // Corrected to 4 moods
             new CulturalMoodAdapter.MoodPrediction(metadataMood, 0.4, culturalContext, 0.4),
             metadataMood,
             new double[]{0.0, 0.0, 1.0} // 100% metadata
@@ -501,10 +501,10 @@ public class HybridMoodAnalyzer {
         
         // Create simple breakdown for enhanced results
         PretrainedMoodModel.MoodPrediction mlPrediction = new PretrainedMoodModel.MoodPrediction(
-                mood, confidence, new double[]{confidence, 0.1, 0.1, 0.1, 0.1});
+                mood, confidence, new double[]{confidence, 0.1, 0.1, 0.1});
         CulturalMoodAdapter.MoodPrediction culturalPrediction = new CulturalMoodAdapter.MoodPrediction(
                 mood, confidence, "Western", confidence);
-        double[] weights = {0.8, 0.2, 0.0, 0.0, 0.0};
+        double[] weights = {0.8, 0.2, 0.0};
         
         AnalysisBreakdown breakdown = new AnalysisBreakdown(
                 mlPrediction,

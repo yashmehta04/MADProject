@@ -28,7 +28,7 @@ public class PretrainedMoodModel {
     private static final String MODEL_PATH = "models/vggish_audio_model.tflite";
     private static final String[] MOOD_LABELS = {
         MoodAlgorithm.MOOD_HAPPY,
-        MoodAlgorithm.MOOD_SAD, 
+        MoodAlgorithm.MOOD_SAD,
         MoodAlgorithm.MOOD_CALM,
         MoodAlgorithm.MOOD_ENERGETIC
     };

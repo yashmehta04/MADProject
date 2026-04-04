@@ -65,18 +65,20 @@ public class FavoritesOperations {
      * @return true if the song is a favorite
      */
     public boolean isFavorite(String path) {
+        boolean exists = false;
         SQLiteDatabase db = dbHandler.getReadableDatabase();
-        Cursor cursor = db.query(FavoritesDBHandler.TABLE_FAVORITES,
-                new String[] { FavoritesDBHandler.COLUMN_ID },
+        try (Cursor cursor = db.query(FavoritesDBHandler.TABLE_FAVORITES,
+                new String[]{FavoritesDBHandler.COLUMN_ID},
                 FavoritesDBHandler.COLUMN_SONG_PATH + " = ?",
-                new String[] { path },
-                null, null, null);
+                new String[]{path},
+                null, null, null)) {
 
-        boolean exists = cursor != null && cursor.getCount() > 0;
-        if (cursor != null) {
-            cursor.close();
+            exists = cursor != null && cursor.getCount() > 0;
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            db.close();
         }
-        db.close();
         return exists;
     }
 
@@ -88,27 +90,28 @@ public class FavoritesOperations {
     public ArrayList<SongsList> getAllFavorites() {
         ArrayList<SongsList> favorites = new ArrayList<>();
         SQLiteDatabase db = dbHandler.getReadableDatabase();
-
-        Cursor cursor = db.query(FavoritesDBHandler.TABLE_FAVORITES,
+        try (Cursor cursor = db.query(FavoritesDBHandler.TABLE_FAVORITES,
                 null, null, null, null, null,
-                FavoritesDBHandler.COLUMN_SONG_TITLE + " ASC");
+                FavoritesDBHandler.COLUMN_SONG_TITLE + " ASC")) {
 
-        if (cursor != null && cursor.moveToFirst()) {
-            int titleIndex = cursor.getColumnIndexOrThrow(FavoritesDBHandler.COLUMN_SONG_TITLE);
-            int pathIndex = cursor.getColumnIndexOrThrow(FavoritesDBHandler.COLUMN_SONG_PATH);
-            int artistIndex = cursor.getColumnIndexOrThrow(FavoritesDBHandler.COLUMN_ARTIST);
+            if (cursor != null && cursor.moveToFirst()) {
+                int titleIndex = cursor.getColumnIndexOrThrow(FavoritesDBHandler.COLUMN_SONG_TITLE);
+                int pathIndex = cursor.getColumnIndexOrThrow(FavoritesDBHandler.COLUMN_SONG_PATH);
+                int artistIndex = cursor.getColumnIndexOrThrow(FavoritesDBHandler.COLUMN_ARTIST);
 
-            do {
-                SongsList song = new SongsList();
-                song.setTitle(cursor.getString(titleIndex));
-                song.setPath(cursor.getString(pathIndex));
-                song.setArtist(cursor.getString(artistIndex));
-                favorites.add(song);
-            } while (cursor.moveToNext());
-
-            cursor.close();
+                do {
+                    SongsList song = new SongsList();
+                    song.setTitle(cursor.getString(titleIndex));
+                    song.setPath(cursor.getString(pathIndex));
+                    song.setArtist(cursor.getString(artistIndex));
+                    favorites.add(song);
+                } while (cursor.moveToNext());
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            db.close();
         }
-        db.close();
         return favorites;
     }
 

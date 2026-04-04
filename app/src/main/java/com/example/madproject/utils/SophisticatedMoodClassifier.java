@@ -78,16 +78,6 @@ public class SophisticatedMoodClassifier {
             new double[]{0.6, 1.0}, // High arousal
             false, // Prefers major key
             0.8 // High danceability
-        ),
-        new MoodProfile(
-            MoodAlgorithm.MOOD_ENERGETIC,
-            new double[]{0.18, 0.16, 0.04, 0.12, 0.12, 0.06, 0.04, 0.06, 0.10, 0.06, 0.02, 0.04},
-            new double[]{120, 140}, // Fast tempo (energetic range)
-            new double[]{0.7, 0.9}, // High energy
-            new double[]{0.5, 0.8}, // Positive valence
-            new double[]{0.8, 1.0}, // Very high arousal
-            false, // Strongly prefers major key
-            0.9 // Very high danceability
         )
     };
     
@@ -114,7 +104,7 @@ public class SophisticatedMoodClassifier {
     public ClassificationResult classifyMood(AdvancedAudioAnalyzer.AudioAnalysis analysis, 
                                            String culturalContext) {
         double[] features = analysis.toFeatureVector();
-        double[] moodScores = new double[5]; // Updated to 5 moods
+        double[] moodScores = new double[4]; // Corrected to 4 moods
         
         // Calculate scores for each mood
         for (int i = 0; i < MOOD_PROFILES.length; i++) {
@@ -389,11 +379,11 @@ public class SophisticatedMoodClassifier {
      */
     public String[] getAlternativeMoods(ClassificationResult result) {
         // Sort moods by score
-        Integer[] indices = {0, 1, 2, 3, 4}; // Updated to 5 moods
+        Integer[] indices = {0, 1, 2, 3}; // Corrected to 4 moods
         Arrays.sort(indices, (i, j) -> Double.compare(result.moodScores[j], result.moodScores[i]));
         
-        String[] alternatives = new String[4]; // Return top 4 alternatives
-        for (int i = 0; i < 4; i++) {
+        String[] alternatives = new String[3]; // Return top 3 alternatives
+        for (int i = 0; i < 3; i++) {
             alternatives[i] = MOOD_PROFILES[indices[i]].mood;
         }
         

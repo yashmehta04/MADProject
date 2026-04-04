@@ -33,6 +33,12 @@ public class PlaylistOperations {
      * @return The new playlist ID, or -1 if failed
      */
     public long createPlaylist(String name) {
+        // Check if playlist with same name already exists
+        if (getPlaylistByName(name) != null) {
+            Log.w(TAG, "Playlist with name '" + name + "' already exists");
+            return -1;
+        }
+        
         SQLiteDatabase db = dbHandler.getWritableDatabase();
         ContentValues values = new ContentValues();
         values.put(PlaylistDBHandler.COLUMN_PLAYLIST_NAME, name);
@@ -64,28 +70,62 @@ public class PlaylistOperations {
         ArrayList<Playlist> playlists = new ArrayList<>();
         SQLiteDatabase db = dbHandler.getReadableDatabase();
 
-        Cursor cursor = db.query(PlaylistDBHandler.TABLE_PLAYLISTS,
+        try (Cursor cursor = db.query(PlaylistDBHandler.TABLE_PLAYLISTS,
                 null, null, null, null, null,
-                PlaylistDBHandler.COLUMN_PLAYLIST_NAME + " ASC");
+                PlaylistDBHandler.COLUMN_PLAYLIST_NAME + " ASC")) {
 
-        if (cursor != null && cursor.moveToFirst()) {
-            int idIndex = cursor.getColumnIndexOrThrow(PlaylistDBHandler.COLUMN_PLAYLIST_ID);
-            int nameIndex = cursor.getColumnIndexOrThrow(PlaylistDBHandler.COLUMN_PLAYLIST_NAME);
+            if (cursor != null && cursor.moveToFirst()) {
+                int idIndex = cursor.getColumnIndexOrThrow(PlaylistDBHandler.COLUMN_PLAYLIST_ID);
+                int nameIndex = cursor.getColumnIndexOrThrow(PlaylistDBHandler.COLUMN_PLAYLIST_NAME);
 
-            do {
-                int id = cursor.getInt(idIndex);
-                String name = cursor.getString(nameIndex);
-                Playlist playlist = new Playlist(id, name);
+                do {
+                    int id = cursor.getInt(idIndex);
+                    String name = cursor.getString(nameIndex);
+                    Playlist playlist = new Playlist(id, name);
 
-                // Load songs for this playlist
-                playlist.setSongs(getPlaylistSongs(db, id));
-                playlists.add(playlist);
-            } while (cursor.moveToNext());
-
-            cursor.close();
+                    // Load songs for this playlist
+                    playlist.setSongs(getPlaylistSongs(db, id));
+                    playlists.add(playlist);
+                } while (cursor.moveToNext());
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "Error fetching playlists", e);
+        } finally {
+            db.close();
         }
-        db.close();
         return playlists;
+    }
+
+    /**
+     * Gets a playlist by name.
+     * 
+     * @param name Playlist name
+     * @return Playlist object or null if not found
+     */
+    public Playlist getPlaylistByName(String name) {
+        SQLiteDatabase db = dbHandler.getReadableDatabase();
+        Playlist playlist = null;
+        
+        try (Cursor cursor = db.query(PlaylistDBHandler.TABLE_PLAYLISTS,
+                null, 
+                PlaylistDBHandler.COLUMN_PLAYLIST_NAME + " = ?",
+                new String[] { name },
+                null, null, null)) {
+            
+            if (cursor != null && cursor.moveToFirst()) {
+                int idIndex = cursor.getColumnIndexOrThrow(PlaylistDBHandler.COLUMN_PLAYLIST_ID);
+                int nameIndex = cursor.getColumnIndexOrThrow(PlaylistDBHandler.COLUMN_PLAYLIST_NAME);
+                
+                int id = cursor.getInt(idIndex);
+                String playlistName = cursor.getString(nameIndex);
+                playlist = new Playlist(id, playlistName);
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "Error fetching playlist by name", e);
+        } finally {
+            db.close();
+        }
+        return playlist;
     }
 
     /**
@@ -113,8 +153,11 @@ public class PlaylistOperations {
      * @return true if added successfully
      */
     public boolean addSongToPlaylist(int playlistId, SongsList song) {
+        Log.d(TAG, "Adding song to playlist: " + song.getTitle() + " to playlist ID: " + playlistId);
+        
         // Check if song already exists in this playlist
         if (isSongInPlaylist(playlistId, song.getPath())) {
+            Log.w(TAG, "Song already exists in playlist: " + song.getTitle());
             return false;
         }
 
@@ -123,10 +166,20 @@ public class PlaylistOperations {
         values.put(PlaylistDBHandler.COLUMN_FK_PLAYLIST_ID, playlistId);
         values.put(PlaylistDBHandler.COLUMN_SONG_PATH, song.getPath());
         values.put(PlaylistDBHandler.COLUMN_SONG_TITLE, song.getTitle());
-
+        values.put(PlaylistDBHandler.COLUMN_SONG_ARTIST, song.getArtist());
+        values.put(PlaylistDBHandler.COLUMN_SONG_ALBUM, song.getAlbum());
+        values.put(PlaylistDBHandler.COLUMN_SONG_DURATION, song.getDuration());
+        values.put(PlaylistDBHandler.COLUMN_SONG_ALBUM_ID, song.getAlbumId());
+        
+        Log.d(TAG, "Inserting values: " + values.toString());
+        
         long result = db.insert(PlaylistDBHandler.TABLE_PLAYLIST_SONGS, null, values);
         db.close();
-        return result != -1;
+        
+        boolean success = result != -1;
+        Log.d(TAG, "Insert result: " + result + ", success: " + success);
+        
+        return success;
     }
 
     /**
@@ -175,34 +228,29 @@ public class PlaylistOperations {
      */
     private ArrayList<SongsList> getPlaylistSongs(SQLiteDatabase db, int playlistId) {
         ArrayList<SongsList> songs = new ArrayList<>();
-        Cursor cursor = null;
-        
-        try {
-            cursor = db.query(PlaylistDBHandler.TABLE_PLAYLIST_SONGS,
-                    null,
-                    PlaylistDBHandler.COLUMN_FK_PLAYLIST_ID + " = ?",
-                    new String[] { String.valueOf(playlistId) },
-                    null, null, null);
+        try (Cursor cursor = db.query(PlaylistDBHandler.TABLE_PLAYLIST_SONGS,
+                null,
+                PlaylistDBHandler.COLUMN_FK_PLAYLIST_ID + " = ?",
+                new String[]{String.valueOf(playlistId)},
+                null, null, null)) {
 
             if (cursor != null && cursor.moveToFirst()) {
-                int titleIndex = cursor.getColumnIndexOrThrow(PlaylistDBHandler.COLUMN_SONG_TITLE);
-                int pathIndex = cursor.getColumnIndexOrThrow(PlaylistDBHandler.COLUMN_SONG_PATH);
-
                 do {
-                    SongsList song = new SongsList();
-                    song.setTitle(cursor.getString(titleIndex));
-                    song.setPath(cursor.getString(pathIndex));
-                    songs.add(song);
+                    String title = cursor.getString(cursor.getColumnIndexOrThrow(PlaylistDBHandler.COLUMN_SONG_TITLE));
+                    String path = cursor.getString(cursor.getColumnIndexOrThrow(PlaylistDBHandler.COLUMN_SONG_PATH));
+                    String artist = cursor.getString(cursor.getColumnIndexOrThrow(PlaylistDBHandler.COLUMN_SONG_ARTIST));
+                    String album = cursor.getString(cursor.getColumnIndexOrThrow(PlaylistDBHandler.COLUMN_SONG_ALBUM));
+                    long duration = cursor.getLong(cursor.getColumnIndexOrThrow(PlaylistDBHandler.COLUMN_SONG_DURATION));
+                    long albumId = cursor.getLong(cursor.getColumnIndexOrThrow(PlaylistDBHandler.COLUMN_SONG_ALBUM_ID));
+                    
+                    // Use the 6-parameter constructor: id, title, artist, path, duration, album, albumId
+                    // We'll use 0 for id since it's not stored in playlist_songs table
+                    songs.add(new SongsList(0, title, artist, path, duration, album, albumId));
                 } while (cursor.moveToNext());
             }
         } catch (Exception e) {
-            Log.e(TAG, "Error getting playlist songs", e);
-        } finally {
-            if (cursor != null) {
-                cursor.close();
-            }
+            Log.e(TAG, "Error fetching playlist songs", e);
         }
-
         return songs;
     }
 

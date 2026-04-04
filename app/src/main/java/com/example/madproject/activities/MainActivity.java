@@ -31,7 +31,6 @@ import androidx.viewpager.widget.ViewPager;
 
 import com.example.madproject.R;
 import com.example.madproject.adapters.ViewPagerAdapter;
-import com.example.madproject.database.PlaylistOperations;
 import com.example.madproject.fragments.AllSongFragment;
 import com.example.madproject.fragments.CurrentSongFragment;
 import com.example.madproject.fragments.FavSongFragment;
@@ -42,7 +41,6 @@ import com.example.madproject.interfaces.PlaylistActionListener;
 import com.example.madproject.interfaces.SongSelectionListener;
 import com.example.madproject.models.Playlist;
 import com.example.madproject.models.SongsList;
-import com.example.madproject.services.NewSongDetectionService;
 import com.example.madproject.utils.ExoPlayerManager;
 import com.example.madproject.utils.MoodAlgorithm;
 import com.example.madproject.utils.UsageTracker;
@@ -55,7 +53,6 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import com.bumptech.glide.Glide;
-import com.example.madproject.utils.TimeFormatter;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -105,9 +102,6 @@ public class MainActivity extends AppCompatActivity
 
     // Background thread management
     private ExecutorService backgroundExecutor;
-    
-    // New songs detection
-    private BroadcastReceiver newSongsReceiver;
 
     // Data
     private ArrayList<SongsList> allSongs;
@@ -175,43 +169,6 @@ public class MainActivity extends AppCompatActivity
         // Register Audio Noisy Receiver
         registerReceiver(audioNoisyReceiver, new IntentFilter(AudioManager.ACTION_AUDIO_BECOMING_NOISY));
         receiverRegistered = true;
-        
-        // Temporarily disable new songs detection to fix crash
-        // setupNewSongsReceiver();
-        // startService(new Intent(this, NewSongDetectionService.class));
-    }
-    
-    /**
-     * Setup broadcast receiver for new songs detection
-     */
-    private void setupNewSongsReceiver() {
-        newSongsReceiver = new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, Intent intent) {
-                if ("com.example.madproject.NEW_SONGS_DETECTED".equals(intent.getAction())) {
-                    int newSongsCount = intent.getIntExtra("new_songs_count", 0);
-                    if (newSongsCount > 0) {
-                        // Refresh the library to show new songs
-                        runOnUiThread(() -> {
-                            Toast.makeText(MainActivity.this, 
-                                "Found " + newSongsCount + " new songs downloaded/added to device! Refreshing library...", 
-                                Toast.LENGTH_LONG).show();
-                            refreshSongLibrary();
-                        });
-                    }
-                }
-            }
-        };
-        
-        IntentFilter filter = new IntentFilter();
-        filter.addAction("com.example.madproject.NEW_SONGS_DETECTED");
-        
-        // Use appropriate receiver registration based on API level
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            registerReceiver(newSongsReceiver, filter, Context.RECEIVER_NOT_EXPORTED);
-        } else {
-            registerReceiver(newSongsReceiver, filter);
-        }
     }
     
     /**
@@ -336,12 +293,8 @@ public class MainActivity extends AppCompatActivity
 
     // ======================== Permissions ========================
 
-    /**
-     * Checks for storage permission and loads songs if granted.
-     */
     private void checkPermissionsAndLoad() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            // Android 13+ uses READ_MEDIA_AUDIO
             if (ContextCompat.checkSelfPermission(this,
                     Manifest.permission.READ_MEDIA_AUDIO) != PackageManager.PERMISSION_GRANTED) {
                 ActivityCompat.requestPermissions(this,
@@ -351,7 +304,6 @@ public class MainActivity extends AppCompatActivity
                 loadSongsAndSetup();
             }
         } else {
-            // Android 12 and below
             if (ContextCompat.checkSelfPermission(this,
                     Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
                 ActivityCompat.requestPermissions(this,
@@ -373,40 +325,25 @@ public class MainActivity extends AppCompatActivity
             } else {
                 Toast.makeText(this, "Storage permission is required to scan music files",
                         Toast.LENGTH_LONG).show();
-                setupViewPager(); // Setup with empty list
+                setupViewPager();
             }
         }
     }
 
-    /**
-     * Scans songs and sets up the ViewPager asynchronously.
-     */
     private void loadSongsAndSetup() {
-        Toast.makeText(this, "Scanning music library...", Toast.LENGTH_SHORT).show();
         backgroundExecutor.execute(() -> {
             ArrayList<SongsList> scannedSongs = StorageScanner.scanSongs(MainActivity.this);
             runOnUiThread(() -> {
                 allSongs = scannedSongs;
                 setupViewPager();
-
-                // Restore last played song from SharedPreferences
                 restoreLastPlayedSong();
-
-                // Trigger background mood tagging for new songs
-                MoodAlgorithm.tagSongsInBackground(MainActivity.this, allSongs, () -> {
-                    runOnUiThread(() -> {
-                        android.util.Log.d("MainActivity", "Mood tagging complete");
-                    });
-                });
+                MoodAlgorithm.tagSongsInBackground(MainActivity.this, allSongs, null);
             });
         });
     }
 
     // ======================== Refresh ========================
 
-    /**
-     * Re-scans storage and refreshes all fragments asynchronously.
-     */
     private void refreshSongLibrary() {
         Toast.makeText(this, "Refreshing library...", Toast.LENGTH_SHORT).show();
         backgroundExecutor.execute(() -> {
@@ -415,33 +352,17 @@ public class MainActivity extends AppCompatActivity
                 allSongs = scannedSongs;
                 if (homeFragment != null) {
                     homeFragment.updateDashboards(allSongs);
-                    Toast.makeText(MainActivity.this, "Library refreshed! Found " + allSongs.size() + " songs.",
-                            Toast.LENGTH_SHORT).show();
+                    Toast.makeText(MainActivity.this, "Library refreshed!", Toast.LENGTH_SHORT).show();
                 }
-                
-                // Trigger background mood tagging for new/updated songs
-                MoodAlgorithm.tagSongsInBackground(MainActivity.this, allSongs, () -> {
-                    runOnUiThread(() -> {
-                        android.util.Log.d("MainActivity", "Mood tagging complete for refreshed library");
-                        // Refresh fragments that might depend on mood data
-                        if (homeFragment != null) {
-                            homeFragment.updateDashboards(allSongs);
-                        }
-                    });
-                });
+                MoodAlgorithm.tagSongsInBackground(MainActivity.this, allSongs, null);
             });
         });
     }
 
-    /**
-     * Restores last played song UI on cold start.
-     * Does NOT auto-play, just shows it in Now Playing + mini player.
-     */
     private void restoreLastPlayedSong() {
         String lastPath = UsageTracker.getLastSongPath(this);
         if (lastPath == null || allSongs == null) return;
 
-        // Find matching song in device library
         for (SongsList song : allSongs) {
             if (song.getPath().equals(lastPath)) {
                 this.currentSong = song;
@@ -449,7 +370,6 @@ public class MainActivity extends AppCompatActivity
                     currentQueue = new ArrayList<>(allSongs);
                     currentSongIndex = allSongs.indexOf(song);
                 }
-                // Update UI without playing
                 if (currentSongFragment != null) {
                     currentSongFragment.updateCurrentSong(song);
                 }
@@ -470,13 +390,9 @@ public class MainActivity extends AppCompatActivity
         this.currentSongIndex = position;
         this.currentSong = currentQueue.get(position);
 
-        // Generate shuffled indices
         generateShuffledIndices();
-
-        // Play the song
         playSong(currentSong);
 
-        // Switch to Now Playing tab
         if (viewPager != null) {
             viewPager.setCurrentItem(1, true);
         }
@@ -497,7 +413,6 @@ public class MainActivity extends AppCompatActivity
             return;
 
         if (shuffleOn && shuffledIndices != null && !shuffledIndices.isEmpty()) {
-            // Find current position in shuffled list and move to next
             int shufflePos = shuffledIndices.indexOf(currentSongIndex);
             shufflePos = (shufflePos + 1) % shuffledIndices.size();
             currentSongIndex = shuffledIndices.get(shufflePos);
@@ -514,12 +429,8 @@ public class MainActivity extends AppCompatActivity
         if (currentQueue == null || currentQueue.isEmpty())
             return;
 
-        // If more than 3 seconds in, restart the song
         if (playerManager.getCurrentPosition() > 3000) {
             playerManager.seekTo(0);
-            if (currentSongFragment != null) {
-                currentSongFragment.updateCurrentSong(currentSong);
-            }
             return;
         }
 
@@ -586,16 +497,10 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onAddToQueue(SongsList song) {
-        if (currentQueue == null) {
-            currentQueue = new ArrayList<>();
-        }
+        if (currentQueue == null) currentQueue = new ArrayList<>();
         currentQueue.add(song);
-
-        // Add to shuffle indices if active
-        if (shuffleOn && shuffledIndices != null) {
-            shuffledIndices.add(currentQueue.size() - 1);
-        }
-        Toast.makeText(this, song.getTitle() + " added to queue", Toast.LENGTH_SHORT).show();
+        if (shuffleOn && shuffledIndices != null) shuffledIndices.add(currentQueue.size() - 1);
+        Toast.makeText(this, "Added to queue", Toast.LENGTH_SHORT).show();
     }
 
     // ======================== PlaylistActionListener ========================
@@ -603,34 +508,12 @@ public class MainActivity extends AppCompatActivity
     @Override
     public void onPlaylistSelected(Playlist playlist) {
         if (playlist.getSongs() != null && !playlist.getSongs().isEmpty()) {
-            // Match playlist songs with full song data from allSongs
-            ArrayList<SongsList> playlistSongs = new ArrayList<>();
-            for (SongsList pSong : playlist.getSongs()) {
-                for (SongsList fullSong : allSongs) {
-                    if (fullSong.getPath().equals(pSong.getPath())) {
-                        playlistSongs.add(fullSong);
-                        break;
-                    }
-                }
-                // If not found in allSongs, still add with limited data
-                if (playlistSongs.isEmpty()
-                        || !playlistSongs.get(playlistSongs.size() - 1).getPath().equals(pSong.getPath())) {
-                    playlistSongs.add(pSong);
-                }
-            }
-
-            if (!playlistSongs.isEmpty()) {
-                onSongSelected(playlistSongs, 0);
-            }
-        } else {
-            Toast.makeText(this, "Playlist is empty. Add songs first!", Toast.LENGTH_SHORT).show();
+            onSongSelected(playlist.getSongs(), 0);
         }
     }
 
     @Override
-    public void onPlaylistDeleted(int playlistId) {
-        // Nothing extra needed; fragment handles UI update
-    }
+    public void onPlaylistDeleted(int playlistId) {}
 
     @Override
     public ArrayList<SongsList> getAllDeviceSongs() {
@@ -639,66 +522,39 @@ public class MainActivity extends AppCompatActivity
 
     // ======================== Playback Helpers ========================
 
-    /**
-     * Plays a specific song and updates the Now Playing fragment.
-     */
     private void playSong(SongsList song) {
-        if (song == null)
-            return;
+        if (song == null) return;
 
         String albumArt = "content://media/external/audio/albumart/" + song.getAlbumId();
         playerManager.playSong(this, song.getPath(), song.getTitle(), song.getArtist(), song.getAlbum(), albumArt);
         playerManager.setLooping(repeatOn);
 
-        // Save last played for state restoration
         UsageTracker.saveLastPlayedSong(this, song.getTitle(), song.getArtist(),
                 song.getPath(), song.getAlbumId(), song.getDuration());
 
-        // Set completion listener for auto-continue via Media3 Player Listener
         playerManager.setPlayerListener(new androidx.media3.common.Player.Listener() {
             @Override
             public void onPlaybackStateChanged(int playbackState) {
                 if (playbackState == androidx.media3.common.Player.STATE_ENDED) {
-                    if (!repeatOn && playContinueFlag) {
-                        onNextSong();
-                    }
+                    if (!repeatOn && playContinueFlag) onNextSong();
                 }
             }
-
             @Override
             public void onIsPlayingChanged(boolean isPlaying) {
-                // Sync mini player and now playing play/pause icons
                 updateMiniPlayerPlayPause();
-                if (currentSongFragment != null) {
-                    currentSongFragment.updatePlayPauseButton();
-                }
+                if (currentSongFragment != null) currentSongFragment.updatePlayPauseButton();
             }
         });
 
-        // Update Now Playing fragment
-        if (currentSongFragment != null) {
-            currentSongFragment.updateCurrentSong(song);
-        }
-
+        if (currentSongFragment != null) currentSongFragment.updateCurrentSong(song);
         updateMiniPlayer(song);
-
-        // Update home screen widget
-        com.example.madproject.widgets.PlayerWidgetProvider.updateWidgetInfo(
-                this, song.getTitle(), song.getArtist());
     }
 
-    /**
-     * Updates the mini player UI.
-     */
     private void updateMiniPlayer(SongsList song) {
-        if (song == null)
-            return;
-
-        // Show only if not on the now playing screen
+        if (song == null) return;
         if (viewPager != null && viewPager.getCurrentItem() != 1) {
             miniPlayerContainer.setVisibility(View.VISIBLE);
         }
-
         miniPlayerTitle.setText(song.getTitle());
         miniPlayerArtist.setText(song.getArtist());
         miniPlayerProgress.setMax(song.getDuration() > 0 ? (int) song.getDuration() : 100);
@@ -711,100 +567,60 @@ public class MainActivity extends AppCompatActivity
             miniPlayerAlbumArt.setImageResource(R.drawable.ic_music_note);
         }
         updateMiniPlayerPlayPause();
-
-        // Start mini player progress updates
         miniPlayerHandler.removeCallbacks(miniPlayerUpdater);
         miniPlayerHandler.post(miniPlayerUpdater);
     }
 
     private void updateMiniPlayerPlayPause() {
-        if (playerManager.isPlaying()) {
-            miniPlayerBtnPlayPause.setImageResource(R.drawable.ic_pause);
-        } else {
-            miniPlayerBtnPlayPause.setImageResource(R.drawable.ic_play);
-        }
+        miniPlayerBtnPlayPause.setImageResource(playerManager.isPlaying() ? R.drawable.ic_pause : R.drawable.ic_play);
     }
 
-    // Mini player progress update handler
     private final Handler miniPlayerHandler = new Handler(Looper.getMainLooper());
     private final Runnable miniPlayerUpdater = new Runnable() {
         @Override
         public void run() {
-            if (playerManager.isPlaying()) {
-                miniPlayerProgress.setProgress(playerManager.getCurrentPosition());
-            }
+            if (playerManager.isPlaying()) miniProgressUpdate();
             miniPlayerHandler.postDelayed(this, 500);
         }
     };
 
-    /**
-     * Generates shuffled indices for the current queue using intelligent shuffling.
-     * Prevents the same artist from playing back-to-back when possible.
-     */
-    private void generateShuffledIndices() {
-        if (currentQueue == null || currentQueue.isEmpty())
-            return;
+    private void miniProgressUpdate() {
+        if (playerManager != null && playerManager.isPlaying()) {
+            miniPlayerProgress.setProgress(playerManager.getCurrentPosition());
+        }
+    }
 
+    private void generateShuffledIndices() {
+        if (currentQueue == null || currentQueue.isEmpty()) return;
         shuffledIndices = new ArrayList<>();
         for (int i = 0; i < currentQueue.size(); i++) {
-            if (i != currentSongIndex) {
-                shuffledIndices.add(i);
-            }
+            if (i != currentSongIndex) shuffledIndices.add(i);
         }
-
-        // Initial random shuffle
         Collections.shuffle(shuffledIndices);
-
-        // Intelligent spacing: avoid back-to-back same artist
-        for (int i = 1; i < shuffledIndices.size(); i++) {
-            SongsList prevSong = currentQueue.get(shuffledIndices.get(i - 1));
-            SongsList currSong = currentQueue.get(shuffledIndices.get(i));
-
-            if (prevSong.getArtist().equals(currSong.getArtist())) {
-                // Find a swap candidate
-                for (int j = i + 1; j < shuffledIndices.size(); j++) {
-                    SongsList candidate = currentQueue.get(shuffledIndices.get(j));
-                    if (!candidate.getArtist().equals(prevSong.getArtist())) {
-                        Collections.swap(shuffledIndices, i, j);
-                        break;
-                    }
-                }
-            }
-        }
-
-        // Move current song index to front
         if (currentSongIndex >= 0 && currentSongIndex < currentQueue.size()) {
             shuffledIndices.add(0, currentSongIndex);
         }
     }
 
-    // ======================== Options Menu (Search) ========================
+    // ======================== Options Menu ========================
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.main_menu, menu);
-
-        // Setup SearchView and store references for bottom nav search
         searchMenuItem = menu.findItem(R.id.action_search);
         toolbarSearchView = (SearchView) searchMenuItem.getActionView();
         toolbarSearchView.setQueryHint("Search songs...");
-
         toolbarSearchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
-            public boolean onQueryTextSubmit(String query) {
-                return false;
-            }
-
+            public boolean onQueryTextSubmit(String query) { return false; }
             @Override
             public boolean onQueryTextChange(String newText) {
-                // Filter in AllSongFragment
                 if (allSongFragment != null && allSongFragment.getSongAdapter() != null) {
                     allSongFragment.getSongAdapter().getFilter().filter(newText);
                 }
                 return true;
             }
         });
-
         return true;
     }
 
@@ -816,14 +632,11 @@ public class MainActivity extends AppCompatActivity
             Toast.makeText(this, "Sleep timer disabled", Toast.LENGTH_SHORT).show();
             return true;
         } else if (id == R.id.sleep_15) {
-            setSleepTimer(15);
-            return true;
+            setSleepTimer(15); return true;
         } else if (id == R.id.sleep_30) {
-            setSleepTimer(30);
-            return true;
+            setSleepTimer(30); return true;
         } else if (id == R.id.sleep_60) {
-            setSleepTimer(60);
-            return true;
+            setSleepTimer(60); return true;
         }
         return super.onOptionsItemSelected(item);
     }
@@ -839,59 +652,45 @@ public class MainActivity extends AppCompatActivity
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         int id = item.getItemId();
-
         if (id == R.id.nav_about) {
             showAboutDialog();
         } else if (id == R.id.nav_queue) {
-            // Open Queue Manager
             QueueActivity.QueueHolder.setQueue(currentQueue);
-            Intent queueIntent = new Intent(this, QueueActivity.class);
-            startActivity(queueIntent);
+            startActivity(new Intent(this, QueueActivity.class));
         } else if (id == R.id.nav_equalizer) {
-            // Open Equalizer with correct audio session ID
             Intent eqIntent = new Intent(this, EqualizerActivity.class);
             eqIntent.putExtra("audio_session_id", com.example.madproject.services.PlaybackService.getAudioSessionId());
             startActivity(eqIntent);
         }
-
         drawerLayout.closeDrawer(GravityCompat.START);
         return true;
     }
 
-    /**
-     * Shows the About dialog.
-     */
     private void showAboutDialog() {
         new AlertDialog.Builder(this, R.style.DarkDialogTheme)
                 .setTitle("About SonicWave")
                 .setMessage("SonicWave Music Player\n\n"
-                        + "Version: 2.1.0\n\n"
+                        + "Version: 2.2.0\n\n"
                         + "A modern, glassmorphic music player for Android.\n\n"
                         + "Created by:\n"
-                        + "F030 - Mayur H. Doshi\n"
-                        + "F030 - Keval N. Mehta\n"
-                        + "F052 - Yash D. Mehta\n\n"
+                        + "• F030 - Mayur H. Doshi\n"
+                        + "• F030 - Keval N. Mehta\n"
+                        + "• F052 - Yash D. Mehta\n\n"
                         + "Features:\n"
                         + "• Modern glassmorphism UI\n"
                         + "• Immersive scroll-based design\n"
-                        + "• Real motion & depth effects\n"
                         + "• Local music playback\n"
-                        + "• Mood-based suggestions\n"
-                        + "• User feedback & mood correction\n"
+                        + "• Mood-based suggestions & Quiz\n"
                         + "• Favorites management\n"
                         + "• Custom playlists\n"
                         + "• Equalizer & audio effects\n"
                         + "• Shuffle & repeat modes\n"
                         + "• Daily usage tracking\n"
-                        + "• Real-time search")
+                        + "• Real-time search\n"
+                        + "• Sleep timer")
                 .setPositiveButton("OK", null)
                 .setIcon(R.drawable.ic_music_note)
                 .show();
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
     }
 
     @Override
@@ -899,15 +698,48 @@ public class MainActivity extends AppCompatActivity
         if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
             drawerLayout.closeDrawer(GravityCompat.START);
         } else {
-            super.onBackPressed();
+            // Requirement 2: Quiz -> Dashboard
+            if (getSupportFragmentManager().getBackStackEntryCount() > 0) {
+                getSupportFragmentManager().popBackStack();
+                return;
+            }
+
+            // Requirement 4, 5, 6 (Library internal navigation)
+            if (handleFragmentBackPress()) {
+                return;
+            }
+
+            // Requirement 1, 3, 7 (Home -> Exit Popup, Others -> Dashboard)
+            int currentItem = viewPager.getCurrentItem();
+            if (currentItem == 0) {
+                showCloseAppDialog();
+            } else {
+                viewPager.setCurrentItem(0, true);
+            }
         }
+    }
+
+    private void showCloseAppDialog() {
+        new AlertDialog.Builder(this)
+                .setTitle("Close App?")
+                .setMessage("Are you sure you want to exit?")
+                .setPositiveButton("Yes", (dialog, which) -> finishAffinity())
+                .setNegativeButton("No", (dialog, which) -> dialog.dismiss())
+                .show();
+    }
+
+    private boolean handleFragmentBackPress() {
+        int currentItem = viewPager.getCurrentItem();
+        if (currentItem == 2) { // Library
+            if (allSongFragment != null) return allSongFragment.handleBackPress();
+        }
+        return false;
     }
 
     // ======================== MoodQuizLauncher ========================
 
     @Override
     public void onLaunchMoodQuiz() {
-        // Show mood quiz as a dialog/fullscreen fragment instead of ViewPager page
         if (moodQuestionnaireFragment != null && getSupportFragmentManager() != null) {
             getSupportFragmentManager().beginTransaction()
                     .setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out,
@@ -921,43 +753,11 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        
-        // Remove pending handler callbacks
-        if (miniPlayerHandler != null) {
-            miniPlayerHandler.removeCallbacks(miniPlayerUpdater);
-        }
-        
-        // Clear sleep timer
-        if (sleepTimerHandler != null) {
-            sleepTimerHandler.removeCallbacksAndMessages(null);
-        }
-        
-        // Release player resources only if activity is actually finishing
-        if (playerManager != null && isFinishing()) {
-            playerManager.releasePlayer();
-        }
-        
-        // Temporarily disable service stop
-        // stopService(new Intent(this, NewSongDetectionService.class));
-        
-        // Unregister receivers
-        if (receiverRegistered && audioNoisyReceiver != null) {
-            unregisterReceiver(audioNoisyReceiver);
-            receiverRegistered = false;
-        }
-        
-        // Temporarily disable newSongsReceiver cleanup
-        // if (newSongsReceiver != null) {
-        //     unregisterReceiver(newSongsReceiver);
-        //     newSongsReceiver = null;
-        // }
-        
-        // Cleanup background executor
-        if (backgroundExecutor != null && !backgroundExecutor.isShutdown()) {
-            backgroundExecutor.shutdown();
-        }
-        
-        // Stop usage tracking
+        miniPlayerHandler.removeCallbacksAndMessages(null);
+        sleepTimerHandler.removeCallbacksAndMessages(null);
+        if (playerManager != null && isFinishing()) playerManager.releasePlayer();
+        if (receiverRegistered) unregisterReceiver(audioNoisyReceiver);
+        if (backgroundExecutor != null) backgroundExecutor.shutdown();
         UsageTracker.endSession(this);
     }
 }

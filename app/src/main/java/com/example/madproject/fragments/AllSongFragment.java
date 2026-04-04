@@ -320,4 +320,29 @@ public class AllSongFragment extends Fragment
         super.onDetach();
         songSelectionListener = null;
     }
+
+    /**
+     * Handles back navigation within the Library fragment.
+     * Returns true if the back press was handled internally.
+     */
+    public boolean handleBackPress() {
+        if (isViewingSublist) {
+            closeSublist();
+            return true;
+        }
+
+        // Navigate between tabs based on requirement
+        if (currentTab == 3) { // Folders -> Artists
+            tabLayout.getTabAt(2).select();
+            return true;
+        } else if (currentTab == 2) { // Artists -> Albums
+            tabLayout.getTabAt(1).select();
+            return true;
+        } else if (currentTab == 1) { // Albums -> Songs
+            tabLayout.getTabAt(0).select();
+            return true;
+        }
+
+        return false; // Let MainActivity handle (go to dashboard)
+    }
 }

@@ -26,12 +26,11 @@
     <color name="mood_sad_glass">#6C63FF</color>
     <color name="mood_calm_glass">#6BCF7F</color>
     <color name="mood_energetic_glass">#FF6B6B</color>
-    <color name="mood_party_glass">#FF61D8</color>
     
     <!-- Gradient Colors -->
     <color name="glass_gradient_start">#6C63FF</color>
-    <color name="glass_gradient_end">#FF61D8</color>
-    <color name="glass_gradient_accent">#FF6B6B</color>
+    <color name="glass_gradient_end">#FF6B6B</color>
+    <color name="glass_gradient_accent">#FFD93D</color>
     
     <!-- Glass Effect Colors -->
     <color name="glass_border">#30FFFFFF</color>

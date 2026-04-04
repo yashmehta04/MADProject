@@ -57,7 +57,9 @@ public class MoodOperations {
      */
     public DetailedMoodInfo getDetailedMoodInfo(String songPath) {
         SQLiteDatabase db = dbHandler.getReadableDatabase();
-        Cursor cursor = db.query(MoodDBHandler.TABLE_MOOD_TAGS,
+        DetailedMoodInfo info = null;
+        
+        try (Cursor cursor = db.query(MoodDBHandler.TABLE_MOOD_TAGS,
                 new String[]{
                     MoodDBHandler.COLUMN_MOOD_TAG,
                     MoodDBHandler.COLUMN_CONFIDENCE_SCORE,
@@ -66,19 +68,21 @@ public class MoodOperations {
                 },
                 MoodDBHandler.COLUMN_SONG_PATH + " = ?",
                 new String[]{songPath},
-                null, null, null);
+                null, null, null)) {
 
-        DetailedMoodInfo info = null;
-        if (cursor != null && cursor.moveToFirst()) {
-            String mood = cursor.getString(cursor.getColumnIndexOrThrow(MoodDBHandler.COLUMN_MOOD_TAG));
-            double confidence = cursor.getDouble(cursor.getColumnIndexOrThrow(MoodDBHandler.COLUMN_CONFIDENCE_SCORE));
-            String culturalContext = cursor.getString(cursor.getColumnIndexOrThrow(MoodDBHandler.COLUMN_CULTURAL_CONTEXT));
-            long timestamp = cursor.getLong(cursor.getColumnIndexOrThrow(MoodDBHandler.COLUMN_ANALYSIS_TIMESTAMP));
-            
-            info = new DetailedMoodInfo(mood, confidence, culturalContext, timestamp);
-            cursor.close();
+            if (cursor != null && cursor.moveToFirst()) {
+                String mood = cursor.getString(cursor.getColumnIndexOrThrow(MoodDBHandler.COLUMN_MOOD_TAG));
+                double confidence = cursor.getDouble(cursor.getColumnIndexOrThrow(MoodDBHandler.COLUMN_CONFIDENCE_SCORE));
+                String culturalContext = cursor.getString(cursor.getColumnIndexOrThrow(MoodDBHandler.COLUMN_CULTURAL_CONTEXT));
+                long timestamp = cursor.getLong(cursor.getColumnIndexOrThrow(MoodDBHandler.COLUMN_ANALYSIS_TIMESTAMP));
+                
+                info = new DetailedMoodInfo(mood, confidence, culturalContext, timestamp);
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "Error querying detailed mood info", e);
+        } finally {
+            db.close();
         }
-        db.close();
         return info;
     }
 
@@ -90,25 +94,28 @@ public class MoodOperations {
      */
     public MoodWithConfidence getMoodWithConfidence(String songPath) {
         SQLiteDatabase db = dbHandler.getReadableDatabase();
-        Cursor cursor = db.query(MoodDBHandler.TABLE_MOOD_TAGS,
+        MoodWithConfidence info = null;
+        try (Cursor cursor = db.query(MoodDBHandler.TABLE_MOOD_TAGS,
                 new String[]{
                     MoodDBHandler.COLUMN_MOOD_TAG,
                     MoodDBHandler.COLUMN_CONFIDENCE_SCORE
                 },
                 MoodDBHandler.COLUMN_SONG_PATH + " = ?",
                 new String[]{songPath},
-                null, null, null);
+                null, null, null)) {
 
-        MoodWithConfidence result = null;
-        if (cursor != null && cursor.moveToFirst()) {
-            String mood = cursor.getString(cursor.getColumnIndexOrThrow(MoodDBHandler.COLUMN_MOOD_TAG));
-            double confidence = cursor.getDouble(cursor.getColumnIndexOrThrow(MoodDBHandler.COLUMN_CONFIDENCE_SCORE));
-            
-            result = new MoodWithConfidence(mood, confidence);
-            cursor.close();
+            if (cursor != null && cursor.moveToFirst()) {
+                String mood = cursor.getString(cursor.getColumnIndexOrThrow(MoodDBHandler.COLUMN_MOOD_TAG));
+                double confidence = cursor.getDouble(cursor.getColumnIndexOrThrow(MoodDBHandler.COLUMN_CONFIDENCE_SCORE));
+                
+                info = new MoodWithConfidence(mood, confidence);
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "Error querying mood with confidence", e);
+        } finally {
+            db.close();
         }
-        db.close();
-        return result;
+        return info;
     }
 
     /**
@@ -165,18 +172,49 @@ public class MoodOperations {
     public Set<String> getAllTaggedPaths() {
         Set<String> paths = new HashSet<>();
         SQLiteDatabase db = dbHandler.getReadableDatabase();
-        Cursor cursor = db.query(MoodDBHandler.TABLE_MOOD_TAGS,
+        try (Cursor cursor = db.query(MoodDBHandler.TABLE_MOOD_TAGS,
                 new String[]{MoodDBHandler.COLUMN_SONG_PATH},
-                null, null, null, null, null);
+                null, null, null, null, null)) {
 
-        if (cursor != null && cursor.moveToFirst()) {
-            int pathIndex = cursor.getColumnIndexOrThrow(MoodDBHandler.COLUMN_SONG_PATH);
-            do {
-                paths.add(cursor.getString(pathIndex));
-            } while (cursor.moveToNext());
-            cursor.close();
+            if (cursor != null && cursor.moveToFirst()) {
+                int pathIndex = cursor.getColumnIndexOrThrow(MoodDBHandler.COLUMN_SONG_PATH);
+                do {
+                    paths.add(cursor.getString(pathIndex));
+                } while (cursor.moveToNext());
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "Error querying tagged paths", e);
+        } finally {
+            db.close();
         }
-        db.close();
+        return paths;
+    }
+
+    /**
+     * Gets all song paths that match a specific mood.
+     *
+     * @param mood The mood tag to filter by
+     * @return Set of file paths that match the mood
+     */
+    public Set<String> getPathsByMood(String mood) {
+        Set<String> paths = new HashSet<>();
+        SQLiteDatabase db = dbHandler.getReadableDatabase();
+        try (Cursor cursor = db.query(MoodDBHandler.TABLE_MOOD_TAGS,
+                new String[]{MoodDBHandler.COLUMN_SONG_PATH},
+                MoodDBHandler.COLUMN_MOOD_TAG + " = ?",
+                new String[]{mood},
+                null, null, null)) {
+
+            if (cursor != null && cursor.moveToFirst()) {
+                do {
+                    paths.add(cursor.getString(0));
+                } while (cursor.moveToNext());
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "Error querying paths for mood", e);
+        } finally {
+            db.close();
+        }
         return paths;
     }
 

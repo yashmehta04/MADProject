@@ -91,8 +91,9 @@ public class MoodQuestionnaireFragment extends Fragment {
     private MaterialButton btnOptionA, btnOptionB, btnOptionC, btnOptionD;
     private CardView cardQuestion, cardResult;
     private TextView tvResultEmoji, tvResultMood, tvResultCount;
-    private MaterialButton btnPlayMood, btnRetake;
+    private MaterialButton btnPlayMood, btnRetake, btnGoDashboardQuestion, btnGoDashboardResult;
     private View[] progressDots;
+    private View btnBackContainer;
 
     // Data
     private ArrayList<SongsList> allSongs;
@@ -146,6 +147,9 @@ public class MoodQuestionnaireFragment extends Fragment {
         tvResultCount = view.findViewById(R.id.tv_result_count);
         btnPlayMood = view.findViewById(R.id.btn_play_mood);
         btnRetake = view.findViewById(R.id.btn_retake);
+        btnGoDashboardQuestion = view.findViewById(R.id.btn_go_dashboard_question);
+        btnGoDashboardResult = view.findViewById(R.id.btn_go_dashboard_result);
+        btnBackContainer = view.findViewById(R.id.btn_back_container);
 
         progressDots = new View[]{
                 view.findViewById(R.id.progress_dot_1),
@@ -164,6 +168,35 @@ public class MoodQuestionnaireFragment extends Fragment {
 
         btnPlayMood.setOnClickListener(v -> playMoodPlaylist());
         btnRetake.setOnClickListener(v -> resetQuiz());
+
+        View.OnClickListener dashboardListener = v -> {
+            if (getActivity() != null) {
+                getActivity().onBackPressed();
+            }
+        };
+
+        if (btnGoDashboardQuestion != null) {
+            btnGoDashboardQuestion.setOnClickListener(dashboardListener);
+        }
+        if (btnGoDashboardResult != null) {
+            btnGoDashboardResult.setOnClickListener(dashboardListener);
+        }
+        
+        // Back button listener - go to dashboard for question 1, previous for others
+        if (btnBackContainer != null) {
+            btnBackContainer.setOnClickListener(v -> {
+                if (currentQuestion > 0) {
+                    // Go to previous question
+                    currentQuestion--;
+                    displayQuestion(currentQuestion);
+                } else {
+                    // On first question, go to dashboard
+                    if (getActivity() != null) {
+                        getActivity().onBackPressed();
+                    }
+                }
+            });
+        }
     }
 
     /**
@@ -185,6 +218,11 @@ public class MoodQuestionnaireFragment extends Fragment {
         // Update progress dots
         updateProgressDots(index);
 
+        // Always show back button (Requirement 2)
+        if (btnBackContainer != null) {
+            btnBackContainer.setVisibility(View.VISIBLE);
+        }
+
         // Animate card entrance
         animateCardIn(cardQuestion);
     }
@@ -202,19 +240,14 @@ public class MoodQuestionnaireFragment extends Fragment {
 
         // Record the mood vote
         String mood = OPTION_MOODS[optionIndex];
-        switch (mood) {
-            case MoodAlgorithm.MOOD_HAPPY:
-                happyCount++;
-                break;
-            case MoodAlgorithm.MOOD_SAD:
-                sadCount++;
-                break;
-            case MoodAlgorithm.MOOD_CALM:
-                calmCount++;
-                break;
-            case MoodAlgorithm.MOOD_ENERGETIC:
-                energeticCount++;
-                break;
+        if (MoodAlgorithm.MOOD_HAPPY.equals(mood)) {
+            happyCount++;
+        } else if (MoodAlgorithm.MOOD_SAD.equals(mood)) {
+            sadCount++;
+        } else if (MoodAlgorithm.MOOD_CALM.equals(mood)) {
+            calmCount++;
+        } else if (MoodAlgorithm.MOOD_ENERGETIC.equals(mood)) {
+            energeticCount++;
         }
 
         currentQuestion++;
@@ -272,7 +305,7 @@ public class MoodQuestionnaireFragment extends Fragment {
         }
 
         tvResultEmoji.setText(emoji);
-        tvResultMood.setText("Your Mood: " + displayName.substring(2).trim()); // Remove emoji prefix
+        tvResultMood.setText("Your Mood: " + displayName); 
         tvResultMood.setTextColor(MoodAlgorithm.getMoodColor(detectedMood));
 
         if (moodSongs.isEmpty()) {

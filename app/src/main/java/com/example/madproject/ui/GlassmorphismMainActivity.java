@@ -408,6 +408,12 @@ public class GlassmorphismMainActivity extends AppCompatActivity {
         }
     }
 
+    @Override
+    public void onBackPressed() {
+        // Go back to MainActivity instead of finishing
+        super.onBackPressed();
+    }
+
     /**
      * Mood category data class
      */
@@ -451,8 +457,8 @@ public class GlassmorphismMainActivity extends AppCompatActivity {
             new AlertDialog.Builder(this)
                     .setTitle("About SonicWave")
                     .setMessage("SonicWave Music Player\n\n"
-                            + "Version: 2.1.0\n\n"
-                            + "A modern, glassmorphic music player for Android.\n\n"
+                        + "Version: 2.2.0\n\n"
+                        + "A modern, glassmorphic music player for Android.\n\n"
                             + "Created by:\n"
                             + "F030 - Mayur H. Doshi\n"
                             + "F030 - Keval N. Mehta\n"

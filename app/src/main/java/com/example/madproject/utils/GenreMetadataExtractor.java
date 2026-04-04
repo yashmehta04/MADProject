@@ -111,9 +111,12 @@ public class GenreMetadataExtractor {
      * Extract genre from song metadata and filename
      */
     public static String extractGenre(SongsList song) {
+        if (song == null || song.getPath() == null) return "Unknown";
+        
+        MediaMetadataRetriever retriever = new MediaMetadataRetriever();
         try {
             // Method 1: Extract from metadata
-            String metadataGenre = extractFromMetadata(song);
+            String metadataGenre = extractFromMetadata(retriever, song.getPath());
             if (metadataGenre != null && !metadataGenre.trim().isEmpty()) {
                 String normalizedGenre = normalizeGenre(metadataGenre);
                 Log.d(TAG, "Genre from metadata: " + song.getTitle() + " -> " + normalizedGenre);
@@ -141,35 +144,58 @@ public class GenreMetadataExtractor {
         } catch (Exception e) {
             Log.e(TAG, "Error extracting genre for: " + song.getTitle(), e);
             return "Unknown";
+        } finally {
+            try {
+                retriever.release();
+            } catch (Exception ignored) {
+            }
+        }
+    }
+
+    /**
+     * Overloaded method to allow reusing MediaMetadataRetriever for batch processing
+     */
+    public static String extractGenre(MediaMetadataRetriever retriever, SongsList song) {
+        if (song == null || song.getPath() == null) return "Unknown";
+        
+        try {
+            // Method 1: Extract from metadata
+            String metadataGenre = extractFromMetadata(retriever, song.getPath());
+            if (metadataGenre != null && !metadataGenre.trim().isEmpty()) {
+                return normalizeGenre(metadataGenre);
+            }
+            
+            // Method 2: Extract from filename
+            String filenameGenre = extractFromFilename(song);
+            if (filenameGenre != null && !filenameGenre.trim().isEmpty()) {
+                return filenameGenre;
+            }
+            
+            // Method 3: Extract from artist name patterns
+            String artistGenre = extractFromArtist(song);
+            if (artistGenre != null && !artistGenre.trim().isEmpty()) {
+                return artistGenre;
+            }
+            
+            return "Unknown";
+        } catch (Exception e) {
+            return "Unknown";
         }
     }
     
     /**
-     * Extract genre from file metadata
+     * Extract genre from file metadata using provided retriever
      */
-    private static String extractFromMetadata(SongsList song) {
-        MediaMetadataRetriever retriever = new MediaMetadataRetriever();
+    public static String extractFromMetadata(MediaMetadataRetriever retriever, String path) {
         try {
-            retriever.setDataSource(song.getPath());
-            
-            // Try different metadata keys
+            retriever.setDataSource(path);
             String genre = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_GENRE);
-            
             if (genre != null && !genre.trim().isEmpty() && !genre.equals("Unknown")) {
-                return normalizeGenre(genre);
+                return genre;
             }
-            
             return null;
-            
         } catch (Exception e) {
-            Log.w(TAG, "Error reading metadata for: " + song.getPath(), e);
             return null;
-        } finally {
-            try {
-                retriever.release();
-            } catch (Exception e) {
-                Log.w(TAG, "Error releasing MediaMetadataRetriever", e);
-            }
         }
     }
     
@@ -177,8 +203,11 @@ public class GenreMetadataExtractor {
      * Extract genre from filename patterns
      */
     private static String extractFromFilename(SongsList song) {
-        String filename = getFileName(song.getPath()).toLowerCase();
-        String title = song.getTitle().toLowerCase();
+        String path = song.getPath();
+        if (path == null) return null;
+        
+        String filename = new java.io.File(path).getName().toLowerCase();
+        String title = song.getTitle() != null ? song.getTitle().toLowerCase() : "";
         
         // Check filename for genre patterns
         for (Map.Entry<String, String> pattern : FILENAME_PATTERNS.entrySet()) {
