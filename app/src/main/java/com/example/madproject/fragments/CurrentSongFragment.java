@@ -426,7 +426,7 @@ public class CurrentSongFragment extends Fragment {
                     if (tvGenreInfoTag != null) {
                         String genre = GenreMetadataExtractor.extractGenre(song);
                         if (genre != null && !genre.equals("Unknown")) {
-                            tvGenreInfoTag.setText("🎵 " + genre);
+                            tvGenreInfoTag.setText(genre);
                             tvGenreInfoTag.setVisibility(View.VISIBLE);
                         } else {
                             tvGenreInfoTag.setVisibility(View.GONE);

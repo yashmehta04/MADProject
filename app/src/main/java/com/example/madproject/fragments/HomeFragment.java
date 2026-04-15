@@ -419,9 +419,9 @@ public class HomeFragment extends Fragment implements SongAdapter.OnSongClickLis
 
             // Summary
             String avgStr = monthUsage.length > 0 ? formatTime(totalMin / monthUsage.length) : "0 min";
-            tvSummary.setText("📱 Total: " + formatTime(totalMin)
-                    + "\n📈 Daily Avg: " + avgStr
-                    + "\n🗓️ " + monthNames[selMonth] + " " + selYear);
+            tvSummary.setText("Total: " + formatTime(totalMin)
+                    + "\nDaily Avg: " + avgStr
+                    + "\n" + monthNames[selMonth] + " " + selYear);
         };
 
         // Wire spinners
@@ -436,7 +436,7 @@ public class HomeFragment extends Fragment implements SongAdapter.OnSongClickLis
         updateChart.run();
 
         new AlertDialog.Builder(requireContext(), R.style.DarkDialogTheme)
-                .setTitle("📊 Usage Analytics")
+                .setTitle("Usage Analytics")
                 .setView(rootLayout)
                 .setPositiveButton("Close", null)
                 .show();

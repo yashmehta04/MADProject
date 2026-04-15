@@ -36,38 +36,38 @@ public class MoodQuestionnaireFragment extends Fragment {
     private static final String[][] QUESTIONS = {
             {
                     "How are you feeling right now?",
-                    "😊 Great & cheerful",
-                    "😢 A bit down",
-                    "😌 Relaxed & peaceful",
-                    "🔥 Pumped & excited"
+                    "Great & cheerful",
+                    "A bit down",
+                    "Relaxed & peaceful",
+                    "Pumped & excited"
             },
             {
                     "What kind of music would you like?",
-                    "🎉 Something fun & upbeat",
-                    "💭 Something emotional & deep",
-                    "🌿 Something soothing & mellow",
-                    "⚡ Something intense & powerful"
+                    "Something fun & upbeat",
+                    "Something emotional & deep",
+                    "Something soothing & mellow",
+                    "Something intense & powerful"
             },
             {
                     "How would you describe your energy level?",
-                    "☀️ Bright and positive",
-                    "🌧️ Low and reflective",
-                    "🌙 Quiet and still",
-                    "🌋 High and unstoppable"
+                    "Bright and positive",
+                    "Low and reflective",
+                    "Quiet and still",
+                    "High and unstoppable"
             },
             {
                     "Pick the vibe that matches your day:",
-                    "🎈 A celebration or hangout",
-                    "📖 Sitting alone with thoughts",
-                    "🧘 Meditation or a quiet walk",
-                    "🏋️ A workout or adventure"
+                    "A celebration or hangout",
+                    "Sitting alone with thoughts",
+                    "Meditation or a quiet walk",
+                    "A workout or adventure"
             },
             {
                     "What would improve your mood right now?",
-                    "💃 Dancing to a catchy tune",
-                    "🎻 Listening to a soulful melody",
-                    "🎹 Gentle piano or lo-fi beats",
-                    "🎸 Headbanging to heavy riffs"
+                    "Dancing to a catchy tune",
+                    "Listening to a soulful melody",
+                    "Gentle piano or lo-fi beats",
+                    "Headbanging to heavy riffs"
             }
     };
 
@@ -337,19 +337,19 @@ public class MoodQuestionnaireFragment extends Fragment {
         String emoji;
         switch (detectedMood) {
             case MoodAlgorithm.MOOD_HAPPY:
-                emoji = "😊";
+                emoji = "";
                 break;
             case MoodAlgorithm.MOOD_SAD:
-                emoji = "😢";
+                emoji = "";
                 break;
             case MoodAlgorithm.MOOD_CALM:
-                emoji = "😌";
+                emoji = "";
                 break;
             case MoodAlgorithm.MOOD_ENERGETIC:
-                emoji = "🔥";
+                emoji = "";
                 break;
             default:
-                emoji = "🎵";
+                emoji = "";
         }
 
         tvResultEmoji.setText(emoji);
@@ -358,10 +358,10 @@ public class MoodQuestionnaireFragment extends Fragment {
 
         if (moodSongs.isEmpty()) {
             tvResultCount.setText("No songs matched, but we'll play your full library shuffled!");
-            btnPlayMood.setText("🎵  Shuffle All Songs");
+            btnPlayMood.setText("Shuffle All Songs");
         } else {
             tvResultCount.setText("We found " + moodSongs.size() + " songs for you!");
-            btnPlayMood.setText("🎵  Play My Mood Playlist");
+            btnPlayMood.setText("Play My Mood Playlist");
         }
 
         // Transition: hide question, show result

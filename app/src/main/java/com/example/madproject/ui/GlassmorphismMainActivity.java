@@ -183,13 +183,13 @@ public class GlassmorphismMainActivity extends AppCompatActivity {
     private List<MoodCategory> createMoodCategories() {
         List<MoodCategory> categories = new ArrayList<>();
         
-        categories.add(new MoodCategory("😊 Happy", MoodAlgorithm.MOOD_HAPPY, 
+        categories.add(new MoodCategory("Happy", MoodAlgorithm.MOOD_HAPPY, 
                 R.drawable.ic_happy, R.color.mood_happy_glass, 45));
-        categories.add(new MoodCategory("😢 Sad", MoodAlgorithm.MOOD_SAD, 
+        categories.add(new MoodCategory("Sad", MoodAlgorithm.MOOD_SAD, 
                 R.drawable.ic_sad, R.color.mood_sad_glass, 23));
-        categories.add(new MoodCategory("😌 Calm", MoodAlgorithm.MOOD_CALM, 
+        categories.add(new MoodCategory("Calm", MoodAlgorithm.MOOD_CALM, 
                 R.drawable.ic_calm, R.color.mood_calm_glass, 67));
-        categories.add(new MoodCategory("🔥 Energetic", MoodAlgorithm.MOOD_ENERGETIC, 
+        categories.add(new MoodCategory("Energetic", MoodAlgorithm.MOOD_ENERGETIC, 
                 R.drawable.ic_energetic, R.color.mood_energetic_glass, 89));
         
         return categories;

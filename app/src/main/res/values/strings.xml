@@ -12,4 +12,8 @@
     <string name="go_to_dashboard">Go To Dashboard</string>
     <string name="back">Back</string>
     <string name="back_description">Back</string>
+    <string name="result_emoji"></string>
+    <string name="your_mood">Your Mood</string>
+    <string name="result_count">Matching songs</string>
+    <string name="play_mood">Play My Mood Playlist</string>
 </resources>

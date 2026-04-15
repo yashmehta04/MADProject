@@ -18,7 +18,7 @@
             android:id="@+id/tv_mood_header"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="🎧 Discover Your Mood"
+            android:text="Discover Your Mood"
             android:textSize="28sp"
             android:textStyle="bold"
             android:textColor="@color/text_primary"

@@ -134,7 +134,7 @@ public class MoodCorrectionDialog extends DialogFragment {
         if (suggestedCorrection != null && !suggestedCorrection.equals(predictedMood)) {
             TextView tvSuggestion = view.findViewById(R.id.tv_suggestion);
             tvSuggestion.setVisibility(View.VISIBLE);
-            tvSuggestion.setText("💡 Suggestion: " + MoodAlgorithm.getMoodDisplayName(suggestedCorrection));
+            tvSuggestion.setText("Suggestion: " + MoodAlgorithm.getMoodDisplayName(suggestedCorrection));
         }
     }
     
